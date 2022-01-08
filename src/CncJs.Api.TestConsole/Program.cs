@@ -1,21 +1,25 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using Cncjs.Api;
 using CncJs.Api.TestConsole;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
 
-var services = new ServiceCollection();
-ConfigureServices(services);
-ServiceProvider serviceProvider = services.BuildServiceProvider();
-var app = serviceProvider.GetService<App>();
-
-await app.Start();
-
-Console.ReadLine();
+CreateHostBuilder(args).Build().Run();
 
 
-void ConfigureServices(ServiceCollection services)
-{
-    services.AddLogging(configure => configure.AddConsole())
-        .AddTransient<App>();
-}
+static IHostBuilder CreateHostBuilder(string[] args) =>
+    Host.CreateDefaultBuilder(args)
+        .ConfigureAppConfiguration(builder =>
+        {
+            builder.AddUserSecrets<Program>()
+                .AddJsonFile("secrets.json",true);
+        })
+        .ConfigureServices((hostContext, services) =>
+    {
+        CncJsOptions options = new CncJsOptions();
+        hostContext.Configuration.Bind(options);
+        services.AddSingleton(options);
+        services.AddHostedService<App>();
+    });

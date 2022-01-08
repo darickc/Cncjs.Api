@@ -76,7 +76,7 @@ public class CncJs : IDisposable
         }
         var token = GenerateAuthToken();
 
-        var port = Options.SocketPort == 80 ? $":{Options.SocketPort}" : "";
+        var port = Options.SocketPort != 80 ? $":{Options.SocketPort}" : "";
         var url = $"ws://{Options.SocketAddress}{port}";
 
         _client = new CncJsSocketIo(url, new SocketIOOptions
@@ -151,14 +151,14 @@ public class CncJs : IDisposable
     {
         if (Connected)
         {
-
+            _logger?.LogInformation("Disconnecting");
             await _client.DisconnectAsync();
         }
     }
 
     public async Task OpenAsync(ControllerModel controller)
     {
-        _logger?.LogInformation($"Sending Open: Port={controller.Port}, Baudrate={controller.Baudrate}, controllerType={controller.ControllerType}");
+        // _logger?.LogInformation($"Sending Open: Port={controller.Port}, Baudrate={controller.Baudrate}, controllerType={controller.ControllerType}");
         await _client.EmitAsync(Open, controller.Port, new
         {
             baudrate = controller.Baudrate,

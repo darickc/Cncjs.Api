@@ -1,32 +1,26 @@
 ﻿using Cncjs.Api;
-using Cncjs.Api.Models;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace CncJs.Api.TestConsole;
 
-public class App : IDisposable
+public class App : BackgroundService, IDisposable
 {
     private readonly Cncjs.Api.CncJs _cnc;
 
-    public App(ILogger<App> logger)
+    public App(ILogger<App> logger, CncJsOptions options)
     {
-        _cnc = new Cncjs.Api.CncJs(new CncJsOptions
-        {
-            //Controller = new ControllerModel("/dev/ttyUSB0", ControllerTypes.Grbl),
-            SocketAddress = "192.168.0.227",
-            Secret = "$2a$10$8YQJh5K.WjZxlcL0/ff9C.",
-            SocketPort = 80,
-        }, logger);
+        _cnc = new Cncjs.Api.CncJs(options, logger);
         
         _cnc.OnConnected = async () =>
         {
-            //await _cnc.SerialPort.ListPortsAsync();
-             await _cnc.OpenAsync(new ControllerModel("/dev/ttyUSB0", ControllerTypes.Grbl));
+            await _cnc.SerialPort.ListPortsAsync();
+            // await _cnc.OpenAsync(new ControllerModel("/dev/ttyUSB0", ControllerTypes.Grbl));
             // _cnc.Controller
         };
     }
-
-    public async Task Start()
+    
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await _cnc.ConnectAsync();
     }
