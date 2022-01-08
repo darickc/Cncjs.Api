@@ -11,11 +11,7 @@ public class Config
     internal Config(CncJsSocketIo client)
     {
         _client = client;
-        _client.On(Change, OnChangeEvent);
-    }
-    private void OnChangeEvent(SocketIOResponse obj)
-    {
-        OnChange?.Invoke();
+        _client.On(Change, _=> OnChange?.Invoke());
     }
 
 }

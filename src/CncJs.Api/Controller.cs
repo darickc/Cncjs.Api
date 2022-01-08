@@ -15,7 +15,7 @@ public class Controller
     {
         _client = client;
         _client.On(Settings, OnSettingsEvent);
-        _client.On(State, OnStateEvent);
+        _client.On(State, _=> OnState?.Invoke());
     }
     private void OnSettingsEvent(SocketIOResponse obj)
     {
@@ -35,10 +35,6 @@ public class Controller
         }
 
         OnSettings?.Invoke(settings);
-    }
-    private void OnStateEvent(SocketIOResponse obj)
-    {
-        OnState?.Invoke();
     }
 
 }

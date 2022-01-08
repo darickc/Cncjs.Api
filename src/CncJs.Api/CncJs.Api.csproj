@@ -9,6 +9,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
     <PackageReference Include="SocketIOClient" Version="3.0.4" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.15.0" />
+    <PackageReference Include="CSharpFunctionalExtensions" Version="2.24.4" />
   </ItemGroup>
 
 </Project>

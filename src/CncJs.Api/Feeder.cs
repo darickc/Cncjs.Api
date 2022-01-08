@@ -11,11 +11,7 @@ public class Feeder
     internal Feeder(CncJsSocketIo client)
     {
         _client = client;
-        _client.On(Status, OnStatusEvent);
-    }
-    private void OnStatusEvent(SocketIOResponse obj)
-    {
-        OnStatus?.Invoke();
+        _client.On(Status, _=> OnStatus?.Invoke());
     }
 
 }

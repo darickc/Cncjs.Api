@@ -1,8 +1,10 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using Cncjs.Api.Models;
+using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using SocketIOClient;
@@ -13,6 +15,8 @@ public class CncJs : IDisposable
 {
     private readonly ILogger       _logger;
     private          CncJsSocketIo _client;
+    private          HttpClient    _httpClient;
+    private string _accessToken;
 
     // responses
     private const    string   Startup = "startup";
@@ -24,14 +28,12 @@ public class CncJs : IDisposable
     public CncJsOptions Options { get; set; }
     public bool Connected => _client?.Connected ?? false;
 
-
     public Func<Task> OnConnected { get; set; }
     public Action OnDisconnected { get; set; }
     public Action<string> OnError { get; set; }
 
     public Action<StartupModel> OnStartup { get; set; }
     public Action OnMessage { get; set; }
-    public Action OnList { get; set; }
 
     public CncTask Task { get; set; }
     public Config Config { get; set; }
@@ -41,6 +43,7 @@ public class CncJs : IDisposable
     public Sender Sender { get; set; }
     public SerialPort SerialPort { get; set; }
     public Workflow Workflow { get; set; }
+    public Watch Watch { get; set; }
 
     public CncJs(CncJsOptions options, ILogger logger)
     {
@@ -74,14 +77,11 @@ public class CncJs : IDisposable
             OnError?.Invoke("Options not set!");
             return;
         }
-        var token = GenerateAuthToken();
-
-        var port = Options.SocketPort != 80 ? $":{Options.SocketPort}" : "";
-        var url = $"ws://{Options.SocketAddress}{port}";
-
-        _client = new CncJsSocketIo(url, new SocketIOOptions
+        _accessToken = GenerateAuthToken();
+        
+        _client = new CncJsSocketIo(Options.WebSocketUrl, new SocketIOOptions
         {
-            Query = new KeyValuePair<string, string>[] { new("token", token) },
+            Query = new KeyValuePair<string, string>[] { new("token", _accessToken) },
             EIO = 3,
             Reconnection = true
         }, _logger);
@@ -93,6 +93,11 @@ public class CncJs : IDisposable
             };
         }
 
+        _httpClient = new HttpClient
+        {
+            BaseAddress = new Uri(Options.ApiUrl) 
+        };
+
         Task = new CncTask(_client);
         Controller = new Controller(_client);
         Feeder = new Feeder(_client);
@@ -100,25 +105,25 @@ public class CncJs : IDisposable
         Sender = new Sender(_client);
         SerialPort = new SerialPort(_client);
         Workflow = new Workflow(_client);
-
-        HandleEvents(url);
+        Watch = new Watch(_client, this);
+        HandleEvents();
     }
 
-    private void HandleEvents(string url)
+    private void HandleEvents()
     {
         _client.OnConnected += (_, _) =>
         {
-            _logger?.LogInformation($"Connected to {url}");
+            _logger?.LogInformation($"Connected to {Options.WebSocketUrl}");
             OnConnected?.Invoke();
         };
         _client.OnError += (_, e) =>
         {
-            _logger?.LogInformation($"Error from {url}: {e}");
+            _logger?.LogInformation($"Error from {Options.WebSocketUrl}: {e}");
             OnError?.Invoke(e);
         };
         _client.OnDisconnected += (_, _) =>
         {
-            _logger?.LogInformation($"Disconnected from {url}");
+            _logger?.LogInformation($"Disconnected from {Options.WebSocketUrl}");
             OnDisconnected?.Invoke();
         };
 
@@ -156,17 +161,13 @@ public class CncJs : IDisposable
         }
     }
 
-    public async Task OpenAsync(ControllerModel controller)
+    internal Task<Result<T>> Get<T>(string path, params KeyValuePair<string,string>[] query)
     {
-        // _logger?.LogInformation($"Sending Open: Port={controller.Port}, Baudrate={controller.Baudrate}, controllerType={controller.ControllerType}");
-        await _client.EmitAsync(Open, controller.Port, new
-        {
-            baudrate = controller.Baudrate,
-            controllerType = controller.ControllerType
-        });
+        var temp = query.ToList();
+        temp.Add(new KeyValuePair<string, string>("token", _accessToken));
+        var url = $"{Options.ApiUrl}{path}?{string.Join("&", temp.Select(t => $"{t.Key}={t.Value}"))}";
+        return Result.Try(() => _httpClient.GetFromJsonAsync<T>(url));
     }
-
-    
 
     public void Dispose()
     {

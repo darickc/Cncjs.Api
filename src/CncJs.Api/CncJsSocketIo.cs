@@ -40,7 +40,7 @@ public class CncJsSocketIo : SocketIO
      
     public new async Task EmitAsync(string eventName, params object[] data)
     {
-        _logger?.LogInformation($"Sending: {eventName}: {data}");
+        _logger?.LogInformation($"Sending: {eventName}: {JsonSerializer.Serialize(data).Json}");
         await base.EmitAsync(eventName, data);
     }
 }

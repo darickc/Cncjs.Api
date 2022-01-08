@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using SocketIOClient;
-
-namespace Cncjs.Api;
+﻿namespace Cncjs.Api;
 
 public class Sender
 {
@@ -11,11 +8,7 @@ public class Sender
     internal Sender(CncJsSocketIo client)
     {
         _client = client;
-        _client.On(Status, OnStatusEvent);
-    }
-    private void OnStatusEvent(SocketIOResponse obj)
-    {
-        OnStatus?.Invoke();
+        _client.On(Status, _=> OnStatus?.Invoke());
     }
 
 }
