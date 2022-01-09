@@ -15,6 +15,7 @@ public class SerialPort
     private const     string   Close  = "serialport:close";
     private const     string   Error  = "serialport:error";
     private const     string   Read   = "serialport:read";
+    private const     string   Write   = "serialport:write";
 
     // commands
     private const string ListCommand = "list";
@@ -26,7 +27,8 @@ public class SerialPort
     public Func<ControllerModel, Task> OnOpen { get; set; }
     public Func<ControllerModel, Task> OnClose { get; set; }
     public Func<ControllerModel, Task> OnError { get; set; }
-    public Func<ControllerModel, Task> OnRead { get; set; }
+    public Func<string, Task> OnRead { get; set; }
+    public Func<string, Task> OnWrite { get; set; }
 
     internal SerialPort(CncJsSocketIo client)
     {
@@ -36,7 +38,8 @@ public class SerialPort
         _client.On(Open, response => OnOpen?.Invoke(response.GetValue<ControllerModel>()));
         _client.On(Close, response => OnClose?.Invoke(response.GetValue<ControllerModel>()));
         _client.On(Error, response => OnError?.Invoke(response.GetValue<ControllerModel>()));
-        _client.On(Read, response => OnRead?.Invoke(response.GetValue<ControllerModel>()));
+        _client.On(Read, response => OnRead?.Invoke(response.GetValue<string>()));
+        _client.On(Write, response => OnWrite?.Invoke(response.GetValue<string>()));
     }
     
     public async Task ListPortsAsync()

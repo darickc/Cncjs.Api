@@ -1,0 +1,15 @@
+﻿<MudDialog>
+    <DialogContent>
+        <div class="buttons">
+            @foreach (var d in Jogging.Distances)
+            {
+                <div>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => SelectDistance(d)' FullWidth="true">@d</MudButton>
+                </div>
+            }
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="Close">Ok</MudButton>
+    </DialogActions>
+</MudDialog>

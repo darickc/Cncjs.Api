@@ -1,0 +1,34 @@
+﻿[
+  {
+    "outputFile": "wwwroot/css/site.css",
+    "inputFile": "wwwroot/css/site.scss"
+  },
+  {
+    "outputFile": "Pages/Index.razor.css",
+    "inputFile": "Pages/Index.razor.scss"
+  },
+  {
+    "outputFile": "Shared/Ports.razor.css",
+    "inputFile": "Shared/Ports.razor.scss"
+  },
+  {
+    "outputFile": "Shared/Common/Loading.razor.css",
+    "inputFile": "Shared/Common/Loading.razor.scss"
+  },
+  {
+    "outputFile": "Shared/Dro.razor.css",
+    "inputFile": "Shared/Dro.razor.scss"
+  },
+  {
+    "outputFile": "Shared/Jogger.razor.css",
+    "inputFile": "Shared/Jogger.razor.scss"
+  },
+  {
+    "outputFile": "Shared/Commands.razor.css",
+    "inputFile": "Shared/Commands.razor.scss"
+  },
+  {
+    "outputFile": "Shared/DistanceDialog.razor.css",
+    "inputFile": "Shared/DistanceDialog.razor.scss"
+  }
+]

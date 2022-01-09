@@ -7,11 +7,11 @@ namespace CncJs.Api.TestConsole;
 
 public class App : BackgroundService, IDisposable
 {
-    private readonly Cncjs.Api.CncJs _cnc;
+    private readonly Cncjs.Api.CncJsClient _cnc;
 
-    public App(ILogger<App> logger, CncJsOptions options)
+    public App(ILogger<App> logger, CncJsClient client)
     {
-        _cnc = new Cncjs.Api.CncJs(options, logger);
+        _cnc = client;
         _cnc.SerialPort.OnList = async list =>
         {
             if (list.Any())

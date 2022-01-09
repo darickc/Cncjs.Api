@@ -1,0 +1,11 @@
+﻿.main{
+    padding:3px;
+    height:100%;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr 1fr 1fr;
+    grid-gap:5px;
+    >div:first-child{
+        grid-column: span 2;
+    }
+}

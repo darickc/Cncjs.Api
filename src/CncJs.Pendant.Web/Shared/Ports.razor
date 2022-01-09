@@ -1,0 +1,28 @@
+﻿
+<MudPaper Class="pa-16 ma-2" Elevation="3">
+    <h3>Ports</h3>
+    <Loading IsLoading="Loading">
+        <MudSelect Label="Controller Type" @bind-Value="SelectedControllerType">
+            @foreach (var controller in ControllerTypes)
+            {
+                <MudSelectItem Value="@controller">@controller</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudSelect Label="Port" @bind-Value="SelectedSerialPort">
+            @foreach (var port in AvailablePorts)
+            {
+                <MudSelectItem Value="@port">@port.Port</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudSelect Label="Baud rate" @bind-Value="SelectedBaudrate">
+            @foreach (var rate in Baudrates)
+            {
+                <MudSelectItem Value="@rate">@rate</MudSelectItem>
+            }
+        </MudSelect>
+        <MudButton Class="mt-4" Variant="Variant.Filled" Color="Color.Primary" OnClick="Connect">Open</MudButton>
+    </Loading>
+
+</MudPaper>

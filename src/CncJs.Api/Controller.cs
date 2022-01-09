@@ -9,32 +9,36 @@ public class Controller
     private readonly CncJsSocketIo _client;
     private const    string        Settings = "controller:settings";
     private const    string        State    = "controller:state";
-    public Action<GrblSettings> OnSettings { get; set; }
-    public Action OnState { get; set; }
+    public Action<ControllerSettings> OnSettings { get; set; }
+    public Action<ControllerState> OnState { get; set; }
     internal Controller(CncJsSocketIo client)
     {
         _client = client;
         _client.On(Settings, OnSettingsEvent);
-        _client.On(State, _=> OnState?.Invoke());
+        _client.On(State, OnStateEvent);
     }
     private void OnSettingsEvent(SocketIOResponse obj)
     {
-        var controllerType = obj.GetValue<string>();
-        var settings = new GrblSettings();
-
-        if (obj.GetValue(1).TryGetProperty("version", out var value))
+        var settings = new ControllerSettings
         {
-            settings.Version = value.GetString();
-        }
-        if (obj.GetValue(1).TryGetProperty("settings", out var item))
+            Type = obj.GetValue<string>()
+        };
+        settings.Settings = settings.Type switch
         {
-            foreach (var t in item.EnumerateObject())
-            {
-                settings.Settings.Add(t.Name, t.Value.GetString());
-            }
-        }
-
+            ControllerTypes.Grbl => Grbl.GetSettings(obj.GetValue(1)),
+            _ => null
+        };
         OnSettings?.Invoke(settings);
+    }
+
+    private void OnStateEvent(SocketIOResponse obj)
+    {
+        var state = new ControllerState
+        {
+            Type = obj.GetValue<string>(),
+            State = obj.GetValue<State>(1)
+        };
+        OnState?.Invoke(state);
     }
 
 }

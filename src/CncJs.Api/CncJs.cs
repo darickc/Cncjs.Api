@@ -11,7 +11,7 @@ using SocketIOClient;
 using SocketIOClient.JsonSerializer;
 
 namespace Cncjs.Api;
-public class CncJs : IDisposable
+public class CncJsClient : IDisposable
 {
     private readonly ILogger       _logger;
     private          CncJsSocketIo _client;
@@ -21,15 +21,12 @@ public class CncJs : IDisposable
     // responses
     private const    string   Startup = "startup";
     private const    string   Message = "message";
-
-    // commands
-    private const string Open = "open";
-
+    
     public CncJsOptions Options { get; set; }
     public bool Connected => _client?.Connected ?? false;
 
     public Func<Task> OnConnected { get; set; }
-    public Action OnDisconnected { get; set; }
+    public Func<Task> OnDisconnected { get; set; }
     public Action<string> OnError { get; set; }
 
     public Action<StartupModel> OnStartup { get; set; }
@@ -45,11 +42,11 @@ public class CncJs : IDisposable
     public Workflow Workflow { get; set; }
     public Watch Watch { get; set; }
 
-    public CncJs(CncJsOptions options, ILogger logger)
+    public CncJsClient(CncJsOptions options, ILogger<CncJsClient> logger)
     {
         Options = options;
         _logger = logger;
-        CreateClient();
+        Initialize();
     }
 
     private string GenerateAuthToken()
@@ -70,7 +67,7 @@ public class CncJs : IDisposable
         return tokenHandler.WriteToken(token);
     }
 
-    private void CreateClient()
+    public void Initialize()
     {
         if (Options == null)
         {

@@ -1,0 +1,17 @@
+﻿@page "/"
+
+@if (ShowPorts || Controller is null)
+{
+    <Ports></Ports>
+}
+else
+{
+    <div class="main">
+        <div>
+            @Controller?.ControllerType : @Controller?.Port : @ControllerState?.State?.Status?.ActiveState
+        </div>
+        <Dro ControllerState="ControllerState"></Dro>
+        <Commands Jogging="Jogging"></Commands>
+        <Jogger ControllerState="ControllerState" Controller="Controller" Jogging="Jogging"></Jogger>
+    </div>
+}

@@ -6,7 +6,7 @@ namespace Cncjs.Api;
 public class Watch
 {
     private readonly CncJsSocketIo _client;
-    private readonly CncJs         _cncJs;
+    private readonly CncJsClient         _cncJs;
 
     private const string State = "workflow:state";
 
@@ -14,7 +14,7 @@ public class Watch
     private const string QueryPath    = "path";
 
     public Action OnState { get; set; }
-    internal Watch(CncJsSocketIo client, CncJs cncJs)
+    internal Watch(CncJsSocketIo client, CncJsClient cncJs)
     {
         _client = client;
         _cncJs = cncJs;

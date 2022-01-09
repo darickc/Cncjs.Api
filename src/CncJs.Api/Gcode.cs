@@ -12,7 +12,8 @@ public class Gcode
     private const    string        UnLoad = "gcode:unload";
 
     // commands
-    private const string SendCommand = "gcode";
+    private const string GcodeCommand = "gcode";
+    private const string Command = "command";
 
     public Func<Task> OnLoad { get; set; }
     public Func<Task> OnUnLoad { get; set; }
@@ -25,9 +26,9 @@ public class Gcode
         _client.On(UnLoad, _ => OnUnLoad?.Invoke());
     }
 
-    public async Task SendCommandAsync(string command)
+    public async Task SendCommandAsync(string port, string cmd)
     {
-        await _client.EmitAsync(SendCommand, command);
+        await _client.EmitAsync(Command, port, GcodeCommand, cmd);
     }
 
 }

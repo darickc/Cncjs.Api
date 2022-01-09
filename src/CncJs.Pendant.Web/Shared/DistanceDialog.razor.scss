@@ -1,0 +1,8 @@
+﻿.buttons{
+    display:flex;
+    flex-wrap:wrap;
+    gap: 2px;
+    > div{
+        flex:0 90px;
+    }
+}
