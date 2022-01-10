@@ -1,24 +1,25 @@
-﻿<div class="dro">
+﻿@using Cncjs.Api
+<div class="dro">
     <div class="heading">Axis</div>
     <div class="heading">Machine Position</div>
     <div class="heading">Work Position</div>
     <div>X
         <div>
-            @State?.Units
+            @State?.Units.AsString()
         </div>
     </div>
     <div>@GetPosition(State?.Status?.Mpos.X)</div>
     <div>@GetPosition(State?.Status?.Wpos.X)</div>
     <div>Y
         <div>
-            @State?.Units
+            @State?.Units.AsString()
         </div>
     </div>
     <div>@GetPosition(State?.Status?.Mpos.Y)</div>
     <div>@GetPosition(State?.Status?.Wpos.Y)</div>
     <div>Z
         <div>
-            @State?.Units
+            @State?.Units.AsString()
         </div>
     </div>
     <div>@GetPosition(State?.Status?.Mpos.Z)</div>

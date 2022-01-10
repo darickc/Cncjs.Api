@@ -4,5 +4,5 @@ public class State
 {
     public Status Status { get; set; }
     public Parserstate Parserstate { get; set; }
-    public string Units => Parserstate?.Modal?.Units switch{ "G21"=> "MM", "G20" => "IN", _ =>""};
+    public Units Units => Parserstate?.Modal?.Units switch{ "G20" => Units.Imperial, _ =>Units.Metric};
 }

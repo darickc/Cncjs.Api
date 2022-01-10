@@ -18,6 +18,8 @@ namespace CncJs.Pendant.Web.Shared
         [Parameter]
         public JoggingModel Jogging { get; set; }
 
+        public bool Disabled => ControllerState?.State?.Status?.ActiveState == "Alarm";
+
         private async Task Jog(string value)
         {
             if (ControllerState == null)

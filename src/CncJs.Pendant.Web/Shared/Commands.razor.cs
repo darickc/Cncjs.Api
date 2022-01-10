@@ -17,6 +17,8 @@ namespace CncJs.Pendant.Web.Shared
         [Parameter]
         public ControllerModel Controller { get; set; }
 
+        public bool Disabled => ControllerState?.State?.Status?.ActiveState == "Alarm";
+
 
         public async Task Command(string cmd)
         {

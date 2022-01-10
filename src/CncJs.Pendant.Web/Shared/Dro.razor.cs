@@ -15,23 +15,23 @@ namespace CncJs.Pendant.Web.Shared
 
         public string GetPosition(string value)
         {
-            if (State?.Units == "MM" && MachineUnits == Units.Millimeters || State?.Units == "IN" && MachineUnits == Units.Inches)
+            if (State?.Units == MachineUnits || State?.Units == MachineUnits)
             {
                 return value;
             }
 
-            if (MachineUnits == Units.Millimeters)
+            if (MachineUnits == Units.Metric)
             {
-                // convert to inches
+                // convert to imperial
                 if (double.TryParse(value, out var mm))
                 {
-                    return (mm / 25.4).ToString("0.000");
+                    return mm.ToImperial().ToString("0.000");
                 }
             }
-            // convert to mm
+            // convert to metric
             if (double.TryParse(value, out var inches))
             {
-                return (inches * 25.4).ToString("0.000");
+                return inches.ToMetric().ToString("0.000");
             }
 
             return value;

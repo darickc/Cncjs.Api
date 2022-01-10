@@ -1,4 +1,6 @@
-﻿namespace Cncjs.Api;
+﻿using Cncjs.Api.Models;
+
+namespace Cncjs.Api;
 
 public static class Extensions
 {
@@ -20,4 +22,20 @@ public static class Extensions
 
         return null;
     }
+
+    public static double ToMetric(this double inches)
+    {
+        return inches * 25.4;
+    }
+
+    public static double ToImperial(this double mm)
+    {
+        return mm / 25.4;
+    }
+
+    public static string AsString(this Units units) => units switch
+    {
+        Units.Imperial => "IN",
+        _ => "MM"
+    };
 }

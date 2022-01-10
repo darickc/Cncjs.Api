@@ -13,6 +13,6 @@ public class Modal
 
     public string Workspace => Wcs switch
     {
-        "G54" => "P1", "G55" => "P2", "G56" => "P3", "G57" => "P4", "G58" => "P5", "G59" => "P6"
+        "G54" => "P1", "G55" => "P2", "G56" => "P3", "G57" => "P4", "G58" => "P5", "G59" => "P6",_=> ""
     };
 }

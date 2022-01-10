@@ -57,6 +57,7 @@ namespace CncJs.Pendant.Web.Pages
 
         private void OnState(ControllerState obj)
         {
+            Jogging.Units = obj.State.Units;
             ControllerState = obj;
             InvokeAsync(StateHasChanged);
         }

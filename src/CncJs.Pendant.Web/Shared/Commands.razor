@@ -1,17 +1,17 @@
 ﻿<div class="commands">
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("-")' Disabled="!Jogging.CanDecrease"><MudIcon Icon="@Icons.Material.Filled.Remove" /></MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("Open")'>@Jogging.Distance</MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("+")' Disabled="!Jogging.CanIncrease"><MudIcon Icon="@Icons.Material.Filled.Add" /></MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("-")' Disabled="!Jogging.CanDecrease || Disabled"><MudIcon Icon="@Icons.Material.Filled.Remove" /></MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("Open")' Disabled="Disabled">@Jogging.Distance</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("+")' Disabled="!Jogging.CanIncrease || Disabled"><MudIcon Icon="@Icons.Material.Filled.Add" /></MudButton>
     <div></div>
     <div></div>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("0X")'>0X</MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("0Y")'>0Y</MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("0X0Y")'>0 X/Y</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("0X")' Disabled="Disabled">0X</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("0Y")' Disabled="Disabled">0Y</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("0X0Y")' Disabled="Disabled">0 X/Y</MudButton>
     <div></div>
     <div></div>
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("Unlock")'><MudIcon Icon="@Icons.Material.Filled.LockOpen" /></MudButton>
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("Reset")'><MudIcon Icon="@Icons.Material.Filled.Replay" /></MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("Home")'><MudIcon Icon="@Icons.Material.Filled.Home" /></MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("Home")' Disabled="Disabled"><MudIcon Icon="@Icons.Material.Filled.Home" /></MudButton>
     
     <div></div>
     <div></div>

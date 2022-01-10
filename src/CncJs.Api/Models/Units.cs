@@ -2,6 +2,6 @@
 
 public enum Units
 {
-    Millimeters,
-    Inches
+    Metric,
+    Imperial
 }
