@@ -17,6 +17,8 @@ namespace CncJs.Pendant.Web.Pages
         public bool PortOpened => Controller != null;
         public bool ShowPorts { get; set; } = true;
         public JoggingModel Jogging { get; set; } = new();
+        public FeedrateModel Feedrate { get; set; }
+        public Units MachineUnits { get; set; }
 
 
         protected override void OnInitialized()
@@ -26,6 +28,31 @@ namespace CncJs.Pendant.Web.Pages
             Client.SerialPort.OnClose = OnClose;
             Client.OnError = OnError;
             Client.Controller.OnState = OnState;
+            Client.Controller.OnSettings = OnSettings;
+        }
+
+        private void OnSettings(ControllerSettings settings)
+        {
+            if (settings.Type == ControllerTypes.Grbl)
+            {
+                // get max feedrate from settings
+                var maxFeedrates = new List<double?>
+                {
+                    settings.Settings.GetSetting("$110").ToDouble(), // x
+                    settings.Settings.GetSetting("$111").ToDouble(), // y
+                    settings.Settings.GetSetting("$112").ToDouble()  // z
+                };
+                double max = 0;
+                foreach (var feedrate in maxFeedrates.Where(f=>f.HasValue))
+                {
+                    max = Math.Max(max, feedrate.Value);
+                }
+
+                Feedrate = new FeedrateModel(max);
+
+                var unitsSetting = settings.Settings.GetSetting("$110").ToInt() ?? 0;
+                MachineUnits = (Units)unitsSetting;
+            }
         }
 
         private void OnState(ControllerState obj)

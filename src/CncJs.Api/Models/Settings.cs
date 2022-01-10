@@ -1,6 +1,6 @@
 ﻿namespace Cncjs.Api.Models;
 
-public class Settings
+public abstract class Settings
 {
-    
+    public abstract string GetSetting(string key);
 }

@@ -9,6 +9,12 @@ public class Controller
     private readonly CncJsSocketIo _client;
     private const    string        Settings = "controller:settings";
     private const    string        State    = "controller:state";
+
+    private const string Command = "command";
+    private const string Home = "homing";
+    private const string Unlock = "unlock";
+    private const string Reset = "reset";
+
     public Action<ControllerSettings> OnSettings { get; set; }
     public Action<ControllerState> OnState { get; set; }
     internal Controller(CncJsSocketIo client)
@@ -39,6 +45,21 @@ public class Controller
             State = obj.GetValue<State>(1)
         };
         OnState?.Invoke(state);
+    }
+
+    public async Task HomeAsync(string port)
+    {
+        await _client.EmitAsync(Command, port, Home);
+    }
+
+    public async Task ResetAsync(string port)
+    {
+        await _client.EmitAsync(Command, port, Reset);
+    }
+
+    public async Task UnlockAsync(string port)
+    {
+        await _client.EmitAsync(Command, port, Unlock);
     }
 
 }

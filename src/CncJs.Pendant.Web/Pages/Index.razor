@@ -7,11 +7,14 @@
 else
 {
     <div class="main">
-        <div>
-            @Controller?.ControllerType : @Controller?.Port : @ControllerState?.State?.Status?.ActiveState
+        <div class="info">
+            @Controller?.ControllerType : @Controller?.Port : <span class="activ-state @ControllerState?.State?.Status?.ActiveState">@ControllerState?.State?.Status?.ActiveState</span>
+            
+            
         </div>
-        <Dro ControllerState="ControllerState"></Dro>
-        <Commands Jogging="Jogging"></Commands>
+        <Dro ControllerState="ControllerState" MachineUnits="MachineUnits"></Dro>
         <Jogger ControllerState="ControllerState" Controller="Controller" Jogging="Jogging"></Jogger>
+        <div></div>
+        <Commands Jogging="Jogging" ControllerState="ControllerState" Controller="Controller"></Commands>
     </div>
 }

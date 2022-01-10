@@ -7,5 +7,27 @@
     grid-gap:5px;
     >div:first-child{
         grid-column: span 2;
+        font-weight:bold;
+        font-size:1.3em;
     }
+}
+.activ-state {
+    padding: 3px;
+    border-radius: 3px;
+}
+.Alarm {
+    background: #f44336ff;
+    color:#fff;    
+}
+.Idle{
+    background:#fff;
+    border:1px solid black;
+}
+.Run {
+    background: #00c853ff;
+    color:#fff;
+}
+.Hold {
+    background: #ff9800ff;
+    color:#fff;
 }
