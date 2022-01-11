@@ -4,10 +4,15 @@
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("+")' Disabled="!Jogging.CanIncrease || Disabled"><MudIcon Icon="@Icons.Material.Filled.Add" /></MudButton>
     <div></div>
     <div></div>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("0X")' Disabled="Disabled">0X</MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("0Y")' Disabled="Disabled">0Y</MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("0X0Y")' Disabled="Disabled">0 X/Y</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Jog("X0")' Disabled="Disabled">X0</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Jog("Y0")' Disabled="Disabled">Y0</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Jog("X0Y0")' Disabled="Disabled">X0/Y0</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Jog("Z0")' Disabled="Disabled">Z0</MudButton>
     <div></div>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => SetZero("X")' Disabled="Disabled">Zero X</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => SetZero("Y")' Disabled="Disabled">Zero Y</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => SetZero("XY")' Disabled="Disabled">Zero X/Y</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => SetZero("Z")' Disabled="Disabled">Zero Z</MudButton>
     <div></div>
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("Unlock")'><MudIcon Icon="@Icons.Material.Filled.LockOpen" /></MudButton>
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("Reset")'><MudIcon Icon="@Icons.Material.Filled.Replay" /></MudButton>

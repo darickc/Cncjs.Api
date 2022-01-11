@@ -6,3 +6,41 @@
 }
 
 <component type="typeof(App)" render-mode="Server" />
+
+<script>
+    var jogger;
+    window.onkeydown = keyDown;
+    window.onkeyup = keyUp;
+
+    function keyDown(e) {
+//        console.log(e.code);
+        if (jogger) {
+            var event = {
+                Key:e.key,
+                Code:e.code,
+                Repeat: e.repeat,
+                CtrlKey:e.ctrlKey,
+                ShiftKey: e.shiftKey,
+                AltKey: e.altKey
+            }
+            jogger.invokeMethodAsync('KeyDown', event);
+        }
+    }
+    function keyUp(e) {
+//        console.log(e.code);
+        if (jogger) {
+            var event = {
+                Key:e.key,
+                Code:e.code,
+                Repeat: e.repeat,
+                CtrlKey:e.ctrlKey,
+                ShiftKey: e.shiftKey,
+                AltKey: e.altKey
+            }
+            jogger.invokeMethodAsync('KeyUp', event);
+        }
+    }
+    window.setJogger=function(j){
+        jogger = j;
+    }
+</script>

@@ -1,4 +1,5 @@
 using Cncjs.Api;
+using CncJs.Pendant.Web.Shared.Services;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,14 +12,15 @@ builder.Services.AddMudServices();
 
 if(builder.Environment.IsDevelopment())
 {
-    builder.Configuration.AddUserSecrets<Program>()
-    .AddJsonFile("secrets.json", true);
+    builder.Configuration.AddUserSecrets<Program>();
 }
+builder.Configuration.AddJsonFile("settings.json", true);
 
 CncJsOptions options = new CncJsOptions();
 builder.Configuration.Bind(options);
 builder.Services.AddSingleton(options);
 builder.Services.AddSingleton<CncJsClient>();
+builder.Services.AddScoped<KeyboardService>();
 
 var app = builder.Build();
 

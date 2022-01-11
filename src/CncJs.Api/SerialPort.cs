@@ -21,6 +21,7 @@ public class SerialPort
     private const string ListCommand = "list";
     private const string OpenCommand        = "open";
     private const string CloseCommand       = "close";
+    private const string WriteCommand       = "write";
 
     public Func<List<SerialPortModel>, Task> OnList { get; set; }
     public Func<ControllerModel, Task> OnChange { get; set; }
@@ -59,5 +60,10 @@ public class SerialPort
     public async Task CloseAsync(ControllerModel controller)
     {
         await _client.EmitAsync(CloseCommand, controller.Port);
+    }
+
+    public async Task SendRawAsync(string port, params char[] cmd)
+    {
+        await _client.EmitAsync(WriteCommand, port, cmd);
     }
 }

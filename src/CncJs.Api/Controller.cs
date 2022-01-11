@@ -14,6 +14,7 @@ public class Controller
     private const string Home = "homing";
     private const string Unlock = "unlock";
     private const string Reset = "reset";
+    private const string Feedhold = "feedhold";
 
     public Action<ControllerSettings> OnSettings { get; set; }
     public Action<ControllerState> OnState { get; set; }
@@ -60,6 +61,11 @@ public class Controller
     public async Task UnlockAsync(string port)
     {
         await _client.EmitAsync(Command, port, Unlock);
+    }
+
+    public async Task FeedholdAsync(string port)
+    {
+        await _client.EmitAsync(Command, port, Feedhold);
     }
 
 }

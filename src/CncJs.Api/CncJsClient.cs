@@ -44,6 +44,7 @@ public class CncJsClient : IDisposable
 
     public CncJsClient(CncJsOptions options, ILogger<CncJsClient> logger)
     {
+        logger.LogInformation($"Creating CncJsClient with options: {JsonSerializer.Serialize(options)}");
         Options = options;
         _logger = logger;
         Initialize();

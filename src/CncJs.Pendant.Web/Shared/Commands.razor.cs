@@ -1,13 +1,16 @@
 ﻿using Cncjs.Api;
 using Cncjs.Api.Models;
 using CncJs.Pendant.Web.Models;
+using CncJs.Pendant.Web.Shared.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 
 namespace CncJs.Pendant.Web.Shared
 {
-    public partial class Commands
+    public partial class Commands : IDisposable
     {
+        [Inject] KeyboardService KeyboardService { get; set; }
         [Inject] public IDialogService DialogService { get; set; }
         [Inject] public CncJsClient Client { get; set; }
         [Parameter]
@@ -19,6 +22,12 @@ namespace CncJs.Pendant.Web.Shared
 
         public bool Disabled => ControllerState?.State?.Status?.ActiveState == "Alarm";
 
+        protected override async Task OnInitializedAsync()
+        {
+            KeyboardService.OnKeyDown += OnKeyDown;
+            KeyboardService.OnKeyUp += OnKeyUp;
+            await KeyboardService.Initialize();
+        }
 
         public async Task Command(string cmd)
         {
@@ -48,27 +57,51 @@ namespace CncJs.Pendant.Web.Shared
                 case "Home":
                     await Client.Controller.HomeAsync(Controller.Port);
                     break;
-                case "0X":
-                case "0Y":
-                case "0X0Y":
-                    await SetZero(cmd);
-                    break;
             }
         }
 
         private async Task SetZero(string cmd)
         {
-            var letters = new[] { "X", "Y", "Z" };
             var workspace = ControllerState.State.Parserstate.Modal.Workspace;
-            var temp = new List<string>();
-            foreach (var letter in letters)
+            await Client.Gcode.SetZeroAsync(Controller.Port, workspace,cmd);
+        }
+
+        private async Task Jog(string value)
+        {
+            if (ControllerState == null)
             {
-                if (cmd.Contains($"{letter}"))
-                {
-                    temp.Add($"{letter}0");
-                }
+                return;
             }
-            await Client.Gcode.SendCommandAsync(Controller.Port, $"G10 L20 {workspace} {string.Join("", temp)}");
+
+            await Client.Gcode.JogAsync(Controller.Port, value, Jogging.Distance, 1000);
+        }
+
+        public async void OnKeyDown(object sender, KeyboardEventArgs args){}
+
+        public async void OnKeyUp(object sender, KeyboardEventArgs args)
+        {
+            switch (args.Code)
+            {
+                case "Numpad0":
+                    await Jog("X0Y0");
+                    break;
+                case "NumpadDecimal":
+                    await SetZero("XY");
+                    break;
+                case "NumpadMultiply":
+                    await Command("+");
+                    break;
+                case "NumpadSubtract":
+                    await Command("-");
+                    break;
+            }
+            StateHasChanged();
+        }
+
+        public void Dispose()
+        {
+            KeyboardService.OnKeyDown -= OnKeyDown;
+            KeyboardService.OnKeyUp -= OnKeyUp;
         }
     }
 }

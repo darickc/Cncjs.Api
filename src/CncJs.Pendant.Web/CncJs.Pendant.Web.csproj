@@ -22,4 +22,8 @@
     <ProjectReference Include="..\CncJs.Api\CncJs.Api.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Shared\Services\" />
+  </ItemGroup>
+
 </Project>
