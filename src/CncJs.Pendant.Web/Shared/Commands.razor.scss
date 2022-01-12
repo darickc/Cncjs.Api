@@ -1,6 +1,17 @@
-﻿.commands{
-    display:grid;
-    grid-template-columns:repeat(5,1fr);
-    grid-template-rows:repeat(4,1fr);
-    grid-gap:2px;
+﻿.commands {
+    display: grid;
+    grid-template-columns: repeat(6,1fr);
+    grid-template-rows: repeat(4,1fr);
+    grid-gap: 2px;
+}
+
+::deep .three-column {
+    grid-column: span 3
+}
+::deep .four-column {
+    grid-column: span 4
+}
+
+::deep .macro{
+    grid-column: span 2;
 }

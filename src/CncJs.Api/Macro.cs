@@ -5,17 +5,27 @@ namespace Cncjs.Api;
 
 public class Macro
 {
-    private readonly CncJsClient _cncJs;
+    private readonly CncJsClient   _cncJs;
+    private readonly CncJsSocketIo _client;
 
     private const string GetMacrosPath = "macros";
+    private const string Command       = "command";
+    private const string RunCommand    = "macro:run";
 
-    public Macro(CncJsClient cncJs)
+    public Macro(CncJsSocketIo client,CncJsClient cncJs)
     {
         _cncJs = cncJs;
+        _client = client;
     }
 
     public Task<Result<MacroModel[]>> GetMacros()
     {
-        return _cncJs.Get<MacroModel[]>(GetMacrosPath);
+        return _cncJs.Get<Macros>(GetMacrosPath)
+            .Map(m=>m.Records);
+    }
+
+    public async Task RunMacro(string port, string id)
+    {
+        await _client.EmitAsync(Command, port, RunCommand, id);
     }
 }

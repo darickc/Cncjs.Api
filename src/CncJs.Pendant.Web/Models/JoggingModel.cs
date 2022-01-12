@@ -62,7 +62,7 @@ public class JoggingModel
     };
 
     public double Distance { get; set; } = 1;
-    public List<double> Distances { get; set; }
+    public List<double> Distances { get; private set; }
 
     public Units Units
     {

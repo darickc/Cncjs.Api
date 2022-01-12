@@ -1,26 +1,37 @@
 ﻿<div class="commands">
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("-")' Disabled="!Jogging.CanDecrease || Disabled"><MudIcon Icon="@Icons.Material.Filled.Remove" /></MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("Open")' Disabled="Disabled">@Jogging.Distance</MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("+")' Disabled="!Jogging.CanIncrease || Disabled"><MudIcon Icon="@Icons.Material.Filled.Add" /></MudButton>
-    <div></div>
-    <div></div>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Jog("X0")' Disabled="Disabled">X0</MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Jog("Y0")' Disabled="Disabled">Y0</MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Jog("X0Y0")' Disabled="Disabled">X0/Y0</MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Jog("Z0")' Disabled="Disabled">Z0</MudButton>
-    <div></div>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => SetZero("X")' Disabled="Disabled">Zero X</MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => SetZero("Y")' Disabled="Disabled">Zero Y</MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => SetZero("XY")' Disabled="Disabled">Zero X/Y</MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => SetZero("Z")' Disabled="Disabled">Zero Z</MudButton>
-    <div></div>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("Unlock")'><MudIcon Icon="@Icons.Material.Filled.LockOpen" /></MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("Reset")'><MudIcon Icon="@Icons.Material.Filled.Replay" /></MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("Home")' Disabled="Disabled"><MudIcon Icon="@Icons.Material.Filled.Home" /></MudButton>
-    
-    <div></div>
-    <div></div>
-    
-
+    <MudButtonGroup Class="three-column" OverrideStyles="false">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("-")' Disabled="!Jogging.CanDecrease || Disabled"><MudIcon Icon="@Icons.Material.Filled.Remove" /></MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("Open")' Disabled="Disabled">@Jogging.Distance</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("+")' Disabled="!Jogging.CanIncrease || Disabled"><MudIcon Icon="@Icons.Material.Filled.Add" /></MudButton>
+    </MudButtonGroup>
+    <MudButtonGroup Class="three-column" OverrideStyles="false">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("F-")' Disabled="!Jogging.CanDecrease || Disabled"><MudIcon Icon="@Icons.Material.Filled.Remove" /></MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("FOpen")' Disabled="Disabled">@Feedrate?.Feedrate</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("F+")' Disabled="!Jogging.CanIncrease || Disabled"><MudIcon Icon="@Icons.Material.Filled.Add" /></MudButton>
+    </MudButtonGroup>
+    <MudButtonGroup Class="four-column" OverrideStyles="false">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Jog("X0")' Disabled="Disabled">X0</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Jog("Y0")' Disabled="Disabled">Y0</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Jog("X0Y0")' Disabled="Disabled">X0/Y0</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Jog("Z0")' Disabled="Disabled">Z0</MudButton>
+    </MudButtonGroup>
+    @if (Macros?.Length > 0)
+    {
+        <MudButton Class="macro" Variant="Variant.Filled" Color="Color.Primary" OnClick='() => RunMacro(Macros[0].Id)' Disabled="Disabled">@Macros[0].Name</MudButton>
+    }
+    <MudButtonGroup Class="four-column" OverrideStyles="false">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => SetZero("X")' Disabled="Disabled">Zero X</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => SetZero("Y")' Disabled="Disabled">Zero Y</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => SetZero("XY")' Disabled="Disabled">Zero X/Y</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick='() => SetZero("Z")' Disabled="Disabled">Zero Z</MudButton>
+    </MudButtonGroup>
+    @if (Macros?.Length == 2)
+    {
+        <MudButton Class="macro" Variant="Variant.Filled" Color="Color.Primary" OnClick='() => RunMacro(Macros[0].Id)' Disabled="Disabled">@Macros[1].Name</MudButton>
+    }
+    else if(Macros?.Length > 2)
+    {
+        <MudButton Class="macro" Variant="Variant.Filled" Color="Color.Primary" OnClick='() => Command("Macro")' Disabled="Disabled">Macros</MudButton>
+    }
 </div>
 

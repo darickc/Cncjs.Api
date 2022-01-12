@@ -32,15 +32,16 @@ public class CncJsClient : IDisposable
     public Action<StartupModel> OnStartup { get; set; }
     public Action OnMessage { get; set; }
 
-    public CncTask Task { get; set; }
-    public Config Config { get; set; }
-    public Controller Controller { get; set; }
-    public Feeder Feeder { get; set; }
-    public Gcode Gcode { get; set; }
-    public Sender Sender { get; set; }
-    public SerialPort SerialPort { get; set; }
-    public Workflow Workflow { get; set; }
-    public Watch Watch { get; set; }
+    public CncTask Task { get; private set; }
+    public Config Config { get; private set; }
+    public Controller Controller { get; private set; }
+    public Feeder Feeder { get; private set; }
+    public Gcode Gcode { get; private set; }
+    public Sender Sender { get; private set; }
+    public SerialPort SerialPort { get; private set; }
+    public Workflow Workflow { get; private set; }
+    public Watch Watch { get; private set; }
+    public Macro Macro { get; private set; }
 
     public CncJsClient(CncJsOptions options, ILogger<CncJsClient> logger)
     {
@@ -104,6 +105,7 @@ public class CncJsClient : IDisposable
         SerialPort = new SerialPort(_client);
         Workflow = new Workflow(_client);
         Watch = new Watch(_client, this);
+        Macro = new Macro(_client,this);
         HandleEvents();
     }
 

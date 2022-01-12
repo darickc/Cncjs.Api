@@ -17,11 +17,13 @@ namespace CncJs.Pendant.Web.Shared
         public ControllerState ControllerState { get; set; }
         [Parameter]
         public ControllerModel Controller { get; set; }
+        [Parameter]
+        public JoggingModel Jogging { get; set; }
+        [Parameter]
+        public FeedrateModel Feedrate { get; set; }
 
         public Timer Timer { get; set; }
 
-        [Parameter]
-        public JoggingModel Jogging { get; set; }
 
         public bool Disabled => ControllerState?.State?.Status?.ActiveState == "Alarm";
 
@@ -42,7 +44,7 @@ namespace CncJs.Pendant.Web.Shared
         
         private async void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            await Client.Gcode.JogAsync(Controller.Port, _currentValue, 1000, 1000);
+            await Client.Gcode.JogAsync(Controller.Port, _currentValue, 1000, Feedrate.Feedrate);
             Timer.Enabled = false;
         }
 
@@ -62,7 +64,7 @@ namespace CncJs.Pendant.Web.Shared
             if (Timer.Enabled)
             {
                 Timer.Stop();
-                await Client.Gcode.JogAsync(Controller.Port, _currentValue, Jogging.Distance, 1000);
+                await Client.Gcode.JogAsync(Controller.Port, _currentValue, Jogging.Distance, Feedrate.Feedrate);
             }
             else
             {
@@ -72,8 +74,9 @@ namespace CncJs.Pendant.Web.Shared
 
         private async Task StopJogging()
         {
-            if (ControllerState.State.Status.ActiveState == "Jog")
-                await Client.Controller.FeedholdAsync(Controller.Port);
+            //if (ControllerState.State.Status.ActiveState == "Jog")
+                await Client.SerialPort.SendRawAsync(Controller.Port, "\x85;\n");
+            //await Client.Controller.FeedholdAsync(Controller.Port);
         }
 
         public async void OnKeyDown(object sender, KeyboardEventArgs args)

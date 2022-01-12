@@ -62,7 +62,7 @@ public class SerialPort
         await _client.EmitAsync(CloseCommand, controller.Port);
     }
 
-    public async Task SendRawAsync(string port, params char[] cmd)
+    public async Task SendRawAsync(string port, string cmd)
     {
         await _client.EmitAsync(WriteCommand, port, cmd);
     }

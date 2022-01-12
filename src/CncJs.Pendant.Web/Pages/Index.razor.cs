@@ -35,6 +35,9 @@ namespace CncJs.Pendant.Web.Pages
         {
             if (settings.Type == ControllerTypes.Grbl)
             {
+                var unitsSetting = settings.Settings.GetSetting("$13").ToInt() ?? 0;
+                MachineUnits = (Units)unitsSetting;
+
                 // get max feedrate from settings
                 var maxFeedrates = new List<double?>
                 {
@@ -42,21 +45,14 @@ namespace CncJs.Pendant.Web.Pages
                     settings.Settings.GetSetting("$111").ToDouble(), // y
                     settings.Settings.GetSetting("$112").ToDouble()  // z
                 };
-                double max = 0;
-                foreach (var feedrate in maxFeedrates.Where(f=>f.HasValue))
-                {
-                    max = Math.Max(max, feedrate.Value);
-                }
-
-                Feedrate = new FeedrateModel(max);
-
-                var unitsSetting = settings.Settings.GetSetting("$110").ToInt() ?? 0;
-                MachineUnits = (Units)unitsSetting;
+                double max = maxFeedrates.Max() ?? 0;
+                Feedrate = new FeedrateModel(max, MachineUnits);
             }
         }
 
         private void OnState(ControllerState obj)
         {
+            Feedrate.Units = obj.State.Units;
             Jogging.Units = obj.State.Units;
             ControllerState = obj;
             InvokeAsync(StateHasChanged);

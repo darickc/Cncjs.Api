@@ -13,9 +13,9 @@ public static class Extensions
 
         return null;
     }
-    public static int? ToDouble(this string value)
+    public static double? ToDouble(this string value)
     {
-        if (int.TryParse(value, out var result))
+        if (double.TryParse(value, out var result))
         {
             return result;
         }

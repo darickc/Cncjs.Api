@@ -30,5 +30,13 @@
   {
     "outputFile": "Shared/DistanceDialog.razor.css",
     "inputFile": "Shared/DistanceDialog.razor.scss"
+  },
+  {
+    "outputFile": "Shared/InfoBar.razor.css",
+    "inputFile": "Shared/InfoBar.razor.scss"
+  },
+  {
+    "outputFile": "Shared/FeedrateDialog.razor.css",
+    "inputFile": "Shared/FeedrateDialog.razor.scss"
   }
 ]

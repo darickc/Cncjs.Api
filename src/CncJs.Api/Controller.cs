@@ -1,5 +1,4 @@
 ﻿using Cncjs.Api.Models;
-using Microsoft.Extensions.Logging;
 using SocketIOClient;
 
 namespace Cncjs.Api;
@@ -15,6 +14,7 @@ public class Controller
     private const string Unlock = "unlock";
     private const string Reset = "reset";
     private const string Feedhold = "feedhold";
+    private const string Cyclestart = "cyclestart";
 
     public Action<ControllerSettings> OnSettings { get; set; }
     public Action<ControllerState> OnState { get; set; }
@@ -66,6 +66,11 @@ public class Controller
     public async Task FeedholdAsync(string port)
     {
         await _client.EmitAsync(Command, port, Feedhold);
+    }
+
+    public async Task CyclestartAsync(string port)
+    {
+        await _client.EmitAsync(Command, port, Cyclestart);
     }
 
 }
