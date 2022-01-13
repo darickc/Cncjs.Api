@@ -1,7 +1,4 @@
-﻿using Cncjs.Api.Models;
-using Microsoft.Extensions.Logging;
-
-namespace Cncjs.Api;
+﻿namespace CncJs.Api;
 
 public class CncJsOptions
 {

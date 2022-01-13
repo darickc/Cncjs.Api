@@ -1,4 +1,4 @@
-﻿namespace Cncjs.Api.Models;
+﻿namespace CncJs.Api.Models;
 
 public class GrblSettings : Settings
 {

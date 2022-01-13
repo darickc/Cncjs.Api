@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using SocketIOClient;
 
-namespace Cncjs.Api;
+namespace CncJs.Api;
 
-public class CncJsSocketIo : SocketIO
+internal class CncJsSocketIo : SocketIO
 {
     private readonly ILogger _logger;
     public CncJsSocketIo(string uri, ILogger logger) : base(uri)

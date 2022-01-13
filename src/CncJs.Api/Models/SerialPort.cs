@@ -1,6 +1,6 @@
-﻿namespace Cncjs.Api.Models;
+﻿namespace CncJs.Api.Models;
 
-public class SerialPortModel
+public class SerialPort
 {
     public string Port { get; set; }
     public string Manufacturer { get; set; }

@@ -1,6 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using Cncjs.Api;
+using CncJs.Api;
 using CncJs.Api.TestConsole;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,5 +21,6 @@ static IHostBuilder CreateHostBuilder(string[] args) =>
         CncJsOptions options = new CncJsOptions();
         hostContext.Configuration.Bind(options);
         services.AddSingleton(options);
+        services.AddSingleton<CncJsClient>();
         services.AddHostedService<App>();
     });

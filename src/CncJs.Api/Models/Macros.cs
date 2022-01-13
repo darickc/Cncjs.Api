@@ -1,6 +1,6 @@
-﻿namespace Cncjs.Api.Models;
+﻿namespace CncJs.Api.Models;
 
 public class Macros
 {
-    public MacroModel[] Records { get; set; }
+    public Macro[] Records { get; set; }
 }

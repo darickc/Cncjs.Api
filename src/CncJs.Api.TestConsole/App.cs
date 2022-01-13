@@ -1,5 +1,4 @@
-﻿using Cncjs.Api;
-using Cncjs.Api.Models;
+﻿using CncJs.Api.Models;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -7,27 +6,32 @@ namespace CncJs.Api.TestConsole;
 
 public class App : BackgroundService, IDisposable
 {
-    private readonly Cncjs.Api.CncJsClient _cnc;
+    private readonly CncJsClient _cnc;
 
     public App(ILogger<App> logger, CncJsClient client)
     {
         _cnc = client;
-        _cnc.SerialPort.OnList = async list =>
+        _cnc.OnConnected += (_, _) =>
         {
-            if (list.Any())
-            {
-                var controller = new ControllerModel(list.First().Port, ControllerTypes.Grbl);
-                await _cnc.SerialPort.OpenAsync(controller);
-                var filesResult = await _cnc.Watch.GetFiles();
-                // await Task.Delay(10000);
-                // await _cnc.SerialPort.CloseAsync(controller);
-            }
+
         };
 
-        _cnc.OnConnected = async () =>
-        {
-            await _cnc.SerialPort.ListPortsAsync();
-        };
+        // _cnc.SerialPortModule.OnList = async list =>
+        // {
+        //     if (list.Any())
+        //     {
+        //         var controller = new Controller(list.First().Port, ControllerTypes.Grbl);
+        //         await _cnc.SerialPortModule.OpenAsync(controller);
+        //         var filesResult = await _cnc.WatchModule.GetFiles();
+        //         // await Task.Delay(10000);
+        //         // await _cnc.SerialPort.CloseAsync(controller);
+        //     }
+        // };
+        //
+        // _cnc.OnConnected = async () =>
+        // {
+        //     await _cnc.SerialPortModule.ListPortsAsync();
+        // };
     }
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

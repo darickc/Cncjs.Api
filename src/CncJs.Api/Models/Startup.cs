@@ -1,6 +1,6 @@
-﻿namespace Cncjs.Api.Models;
+﻿namespace CncJs.Api.Models;
 
-public class StartupModel
+public class Startup
 {
     public List<string> LoadedControllers { get; set; }
     public List<int> Baudrates { get; set; }

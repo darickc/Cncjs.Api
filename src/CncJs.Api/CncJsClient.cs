@@ -1,47 +1,93 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.ComponentModel;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Json;
+using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
-using Cncjs.Api.Models;
+using CncJs.Api.Annotations;
+using CncJs.Api.Models;
+using CncJs.Api.Modules;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using SocketIOClient;
 using SocketIOClient.JsonSerializer;
 
-namespace Cncjs.Api;
-public class CncJsClient : IDisposable
+namespace CncJs.Api;
+public class CncJsClient : IDisposable, INotifyPropertyChanged
 {
-    private readonly ILogger       _logger;
-    private          CncJsSocketIo _client;
-    private          HttpClient    _httpClient;
-    private string _accessToken;
+    private readonly ILogger            _logger;
+    private          string             _accessToken;
+    private          Controller         _controller;
+    private          ControllerSettings _controllerSettings;
+    private          ControllerState    _controllerState;
 
     // responses
     private const    string   Startup = "startup";
     private const    string   Message = "message";
     
+    // properties
     public CncJsOptions Options { get; set; }
-    public bool Connected => _client?.Connected ?? false;
+    public bool Connected => SocketIoClient?.Connected ?? false;
+    internal CncJsSocketIo SocketIoClient { get; private set; }
+    internal CncJsHttpClient HttpClient { get; private set; }
 
-    public Func<Task> OnConnected { get; set; }
-    public Func<Task> OnDisconnected { get; set; }
-    public Action<string> OnError { get; set; }
+    public Controller Controller
+    {
+        get => _controller;
+        set
+        {
+            if (Equals(value, _controller)) return;
+            _controller = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(ControllerConnected));
+        }
+    }
 
-    public Action<StartupModel> OnStartup { get; set; }
-    public Action OnMessage { get; set; }
+    public ControllerSettings ControllerSettings
+    {
+        get => _controllerSettings;
+        set
+        {
+            if (Equals(value, _controllerSettings)) return;
+            _controllerSettings = value;
+            OnPropertyChanged();
+        }
+    }
 
-    public CncTask Task { get; private set; }
-    public Config Config { get; private set; }
-    public Controller Controller { get; private set; }
-    public Feeder Feeder { get; private set; }
-    public Gcode Gcode { get; private set; }
-    public Sender Sender { get; private set; }
-    public SerialPort SerialPort { get; private set; }
-    public Workflow Workflow { get; private set; }
-    public Watch Watch { get; private set; }
-    public Macro Macro { get; private set; }
+    public ControllerState ControllerState
+    {
+        get => _controllerState;
+        set
+        {
+            if (Equals(value, _controllerState)) return;
+            _controllerState = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool ControllerConnected => Connected && Controller != null;
+
+    // events
+    public event EventHandler OnConnected;
+    public event EventHandler OnDisconnected;
+    public event EventHandler<string> OnError;
+    public event EventHandler<Startup> OnStartup;
+    public event EventHandler OnMessage;
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    // Modules
+    public TaskModule TaskModule { get; private set; }
+    public ConfigModule ConfigModule { get; private set; }
+    public ControllerModule ControllerModule { get; private set; }
+    public FeederModule FeederModule { get; private set; }
+    public GcodeModule GcodeModule { get; private set; }
+    public SenderModule SenderModule { get; private set; }
+    public SerialPortModule SerialPortModule { get; private set; }
+    public WorkflowModule WorkflowModule { get; private set; }
+    public WatchModule WatchModule { get; private set; }
+    public MacroModule MacroModule { get; private set; }
 
     public CncJsClient(CncJsOptions options, ILogger<CncJsClient> logger)
     {
@@ -73,18 +119,18 @@ public class CncJsClient : IDisposable
     {
         if (Options == null)
         {
-            OnError?.Invoke("Options not set!");
+            OnError?.Invoke(this,"Options not set!");
             return;
         }
         _accessToken = GenerateAuthToken();
-        
-        _client = new CncJsSocketIo(Options.WebSocketUrl, new SocketIOOptions
+
+        SocketIoClient = new CncJsSocketIo(Options.WebSocketUrl, new SocketIOOptions
         {
             Query = new KeyValuePair<string, string>[] { new("token", _accessToken) },
             EIO = 3,
             Reconnection = true
         }, _logger);
-        if (_client.JsonSerializer is SystemTextJsonSerializer jsonSerializer)
+        if (SocketIoClient.JsonSerializer is SystemTextJsonSerializer jsonSerializer)
         {
             jsonSerializer.OptionsProvider = () => new JsonSerializerOptions
             {
@@ -92,64 +138,71 @@ public class CncJsClient : IDisposable
             };
         }
 
-        _httpClient = new HttpClient
-        {
-            BaseAddress = new Uri(Options.ApiUrl) 
-        };
+        HttpClient = new CncJsHttpClient(Options.ApiUrl, _accessToken);
 
-        Task = new CncTask(_client);
-        Controller = new Controller(_client);
-        Feeder = new Feeder(_client);
-        Gcode = new Gcode(_client);
-        Sender = new Sender(_client);
-        SerialPort = new SerialPort(_client);
-        Workflow = new Workflow(_client);
-        Watch = new Watch(_client, this);
-        Macro = new Macro(_client,this);
+        TaskModule = new TaskModule(this);
+        ControllerModule = new ControllerModule(this);
+        FeederModule = new FeederModule(this);
+        GcodeModule = new GcodeModule(this);
+        SenderModule = new SenderModule(this);
+        SerialPortModule = new SerialPortModule(this);
+        WorkflowModule = new WorkflowModule(this);
+        WatchModule = new WatchModule(this);
+        MacroModule = new MacroModule(this);
         HandleEvents();
     }
 
     private void HandleEvents()
     {
-        _client.OnConnected += (_, _) =>
+        SocketIoClient.OnConnected += (_, _) =>
         {
             _logger?.LogInformation($"Connected to {Options.WebSocketUrl}");
-            OnConnected?.Invoke();
+            OnConnected?.Invoke(this, EventArgs.Empty);
+            OnPropertyChanged(nameof(ControllerConnected));
+            OnPropertyChanged(nameof(Connected));
         };
-        _client.OnError += (_, e) =>
+        SocketIoClient.OnError += (_, e) =>
         {
             _logger?.LogInformation($"Error from {Options.WebSocketUrl}: {e}");
-            OnError?.Invoke(e);
+            OnError?.Invoke(this, e);
         };
-        _client.OnDisconnected += (_, _) =>
+        SocketIoClient.OnDisconnected += (_, _) =>
         {
             _logger?.LogInformation($"Disconnected from {Options.WebSocketUrl}");
-            OnDisconnected?.Invoke();
+            OnDisconnected?.Invoke(this, EventArgs.Empty);
+            OnPropertyChanged(nameof(ControllerConnected));
+            OnPropertyChanged(nameof(Connected));
         };
 
-        _client.On(Startup, OnStartupEvent);
-        _client.On(Message, OnMessageEvent);
+        SocketIoClient.On(Startup, OnStartupEvent);
+        SocketIoClient.On(Message, OnMessageEvent);
+
+        SerialPortModule.OnOpen += (_, controller) => Controller = controller;
+        SerialPortModule.OnClose += (_, _) => Controller = null;
+        SerialPortModule.OnChange += (_, controller) => Controller = controller;
+        ControllerModule.OnSettings += (_, settings) => ControllerSettings = settings;
+        ControllerModule.OnState += (_, state) => ControllerState = state;
     }
 
     private void OnStartupEvent(SocketIOResponse obj)
     {
-        var model = obj.GetValue<StartupModel>();
-        OnStartup?.Invoke(model);
+        var model = obj.GetValue<Startup>();
+        OnStartup?.Invoke(this, model);
     }
 
     private void OnMessageEvent(SocketIOResponse obj)
     {
-        OnMessage?.Invoke();
+        OnMessage?.Invoke(this, EventArgs.Empty);
     }
 
     public async Task ConnectAsync()
     {
-        if (_client == null)
+        if (SocketIoClient == null)
         {
-            OnError?.Invoke("Client is not created, call CreateClient or pass options into the constructor.");
+            OnError?.Invoke(this,"Client is not created, call CreateClient or pass options into the constructor.");
             return;
         }
-        await _client.ConnectAsync();
+        await SocketIoClient.ConnectAsync();
     }
 
     public async Task DisconnectAsync()
@@ -157,21 +210,19 @@ public class CncJsClient : IDisposable
         if (Connected)
         {
             _logger?.LogInformation("Disconnecting");
-            await _client.DisconnectAsync();
+            await SocketIoClient.DisconnectAsync();
         }
     }
-
-    internal Task<Result<T>> Get<T>(string path, params KeyValuePair<string,string>[] query)
-    {
-        var temp = query.ToList();
-        temp.Add(new KeyValuePair<string, string>("token", _accessToken));
-        var url = $"{Options.ApiUrl}{path}?{string.Join("&", temp.Select(t => $"{t.Key}={t.Value}"))}";
-        return Result.Try(() => _httpClient.GetFromJsonAsync<T>(url));
-    }
-
+    
     public void Dispose()
     {
-        _client?.Dispose();
+        SocketIoClient?.Dispose();
+    }
+
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
 

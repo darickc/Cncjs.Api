@@ -1,23 +1,23 @@
 ﻿using System.Text.Json;
-using Cncjs.Api.Models;
+using CncJs.Api.Models;
 
-namespace Cncjs.Api;
+namespace CncJs.Api.Modules;
 
-public class Grbl
+public class GrblModule
 {
-    private readonly CncJsSocketIo _client;
+    private readonly CncJsClient _client;
 
     private const string Settings = "Grbl:settings";
     private const string State    = "Grbl:state";
 
-    public Action<GrblSettings> OnSettings { get; set; }
-    public Action<State> OnState { get; set; }
+    public event EventHandler<GrblSettings> OnSettings;
+    public event EventHandler<State> OnState;
 
-    internal Grbl(CncJsSocketIo client)
+    internal GrblModule(CncJsClient client)
     {
         _client = client;
-        _client.On(Settings, response => OnSettings?.Invoke(GetSettings(response.GetValue())));
-        _client.On(State, response => response.GetValue<State>());
+        _client.SocketIoClient.On(Settings, response => OnSettings?.Invoke(this, GetSettings(response.GetValue())));
+        _client.SocketIoClient.On(State, response => OnState?.Invoke(this, response.GetValue<State>()));
     }
     
 

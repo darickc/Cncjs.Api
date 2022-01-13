@@ -1,6 +1,6 @@
-﻿namespace Cncjs.Api.Models;
+﻿namespace CncJs.Api.Models;
 
-public class MacroModel
+public class Macro
 {
     public string Id { get; set; }
     public long Mtime { get; set; }

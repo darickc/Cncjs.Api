@@ -1,6 +1,6 @@
-﻿using Cncjs.Api.Models;
+﻿using CncJs.Api.Models;
 
-namespace Cncjs.Api;
+namespace CncJs.Api;
 
 public static class Extensions
 {
