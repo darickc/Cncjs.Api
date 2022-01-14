@@ -1,2 +1,25 @@
-﻿<h3>Confirmation</h3>
+﻿@using CncJs.Api
+<div class="sender">
+    <div>
+        <MudButtonGroup Class="three-column" OverrideStyles="false">
+            <MudButton Variant="Variant.Filled" Color="Color.Dark" FullWidth="true" Size="Size.Small"><MudIcon Icon="@Icons.Material.Filled.FileOpen" /></MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Dark" FullWidth="true" Size="Size.Small" OnClick="Unload" Disabled="!CanClose"><MudIcon Icon="@Icons.Material.Filled.Close" /></MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Dark" FullWidth="true" Size="Size.Small" OnClick="Start" Disabled="!CanPlay"><MudIcon Icon="@Icons.Material.Filled.PlayArrow" /></MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Dark" FullWidth="true" Size="Size.Small" OnClick="Pause" Disabled="!CanPause"><MudIcon Icon="@Icons.Material.Filled.Pause" /></MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Dark" FullWidth="true" Size="Size.Small" OnClick="Stop" Disabled="!CanStop"><MudIcon Icon="@Icons.Material.Filled.Stop" /></MudButton>
+        </MudButtonGroup>
+    </div>
+    <div>
+        @Status?.Name
+    </div>
+    <div>
+        @if (Status is {Received: > 0 })
+        {
+            @Status.Elapsed.AsString()
+            <MudProgressLinear Color="Color.Primary" Value="@Status.Received" Max="@Status.Total"/>
+            @Status.Remaining.AsString()
+        }
+    </div>
+
+</div>
 

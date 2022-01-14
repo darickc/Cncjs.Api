@@ -23,7 +23,7 @@ namespace CncJs.Pendant.Web.Shared
 
         public Macro[] Macros { get; set; } = Array.Empty<Macro>();
 
-        public bool Disabled => Client.ControllerModule.ControllerState?.State?.Status?.ActiveState == "Alarm";
+        public bool Disabled => !Jogging?.CanJog(Client.ControllerModule.ControllerState?.State?.Status?.ActiveState) ?? true;
 
         protected override async Task OnInitializedAsync()
         {

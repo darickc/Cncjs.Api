@@ -60,7 +60,7 @@ internal class CncJsSocketIo : SocketIO
     {
         OnAny((name, response) =>
         {
-            _logger?.LogInformation($"Receiving: {name}: {response}");
+            _logger?.LogInformation($"Receiving: '{name}': {response}");
         });
     }
      

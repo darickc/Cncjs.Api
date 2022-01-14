@@ -4,8 +4,9 @@ namespace CncJs.Pendant.Web.Models;
 
 public class JoggingModel
 {
-    private int _index;
-    private Units _units = Units.Metric;
+    private readonly string[] _invalidStates = { "Hold", "Run", "Alarm" };
+    private          int      _index;
+    private          Units    _units = Units.Metric;
     private List<double> _metricDistances => new()
     {
         .001,
@@ -114,5 +115,10 @@ public class JoggingModel
         {
             _index = Distances.IndexOf(Distance);
         }
+    }
+
+    public bool CanJog(string activeState)
+    {
+        return !_invalidStates.Contains(activeState);
     }
 }

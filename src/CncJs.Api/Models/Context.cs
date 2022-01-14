@@ -2,10 +2,27 @@
 
 public class Context
 {
-    public int Xmin { get; set; }
-    public int Xmax { get; set; }
-    public int Ymin { get; set; }
-    public int Ymax { get; set; }
-    public int Zmin { get; set; }
-    public int Zmax { get; set; }
+    public double Xmin { get; set; }
+    public double Xmax { get; set; }
+    public double Ymin { get; set; }
+    public double Ymax { get; set; }
+    public double Zmin { get; set; }
+    public double Zmax { get; set; }
+    public double Mposx { get; set; }
+    public double Mposy { get; set; }
+    public double Mposz { get; set; }
+    public double Mposa { get; set; }
+    public double Mposb { get; set; }
+    public double Mposc { get; set; }
+    public double Posx { get; set; }
+    public double Posy { get; set; }
+    public double Posz { get; set; }
+    public double Posa { get; set; }
+    public double Posb { get; set; }
+    public double Posc { get; set; }
+    public Modal Modal { get; set; }
+    public int Tool { get; set; }
+    // public Params Params { get; set; }
+    // public Math Math { get; set; }
+    // public JSON JSON { get; set; }
 }

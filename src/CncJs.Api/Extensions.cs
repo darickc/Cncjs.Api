@@ -38,4 +38,12 @@ public static class Extensions
         Units.Imperial => "IN",
         _ => "MM"
     };
+
+    public static string AsString(this TimeSpan span)
+    {
+        var temp = span.Days > 0 ? "d'.'" : "";
+        temp += span.Hours > 0 || span.Days > 0 ? "h':'" : "";
+        temp += "mm':'ss";
+        return span.ToString(temp);
+    }
 }

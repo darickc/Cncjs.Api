@@ -23,7 +23,7 @@ namespace CncJs.Pendant.Web.Shared
         public bool IsTouchscreen { get; set; }
 
 
-        public bool Disabled => Client.ControllerModule.ControllerState?.State?.Status?.ActiveState == "Alarm";
+        public bool Disabled => !Jogging?.CanJog(Client.ControllerModule.ControllerState?.State?.Status?.ActiveState) ?? true;
 
         private string                        _currentValue;
 

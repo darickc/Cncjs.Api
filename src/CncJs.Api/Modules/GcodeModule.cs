@@ -12,6 +12,7 @@ public class GcodeModule
     // responses
     private const string Load = "gcode:load";
     private const string UnLoad = "gcode:unload";
+    private const string UnLoadCommand = "unload";
 
     // commands
     private const string GcodeCommand = "gcode";
@@ -73,4 +74,10 @@ public class GcodeModule
         await _client.SerialPortModule.SendRawAsync("\x85;\n");
     }
 
+    public async Task UnloadAsync()
+    {
+        if (!_client.ControllerModule.ControllerConnected && !_client.Connected)
+            return;
+        await _client.SocketIoClient.EmitAsync(Command, UnLoadCommand);
+    }
 }
