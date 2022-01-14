@@ -18,12 +18,12 @@ public class MacroModule
 
     public Task<Result<Macro[]>> GetMacros()
     {
-        return _client.HttpClient.Get<Macros>(GetMacrosPath)
+        return _client.SocketIoClient.Get<Macros>(GetMacrosPath)
             .Map(m=>m.Records);
     }
 
-    public async Task RunMacro(string id, params string[] data)
+    public async Task RunMacro(string id, params object[] data)
     {
-        await _client.SocketIoClient.EmitAsync(Command, _client.Controller.Port, RunCommand, id, data);
+        await _client.SocketIoClient.EmitAsync(Command, _client.ControllerModule.Controller.Port, RunCommand, id, data.Length == 1 ? data[0] : data);
     }
 }

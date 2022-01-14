@@ -1,86 +1,78 @@
-﻿using Cncjs.Api;
-using Cncjs.Api.Models;
+﻿using System.ComponentModel;
+using CncJs.Api;
 using CncJs.Pendant.Web.Models;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
 namespace CncJs.Pendant.Web.Pages
 {
-    public partial class Index
+    public partial class Index : IDisposable
     {
         [Inject] public CncJsClient Client { get; set; }
         [Inject] ISnackbar Snackbar { get; set; }
-
-        public ControllerModel Controller { get; set; }
-        public ControllerState ControllerState { get; set; }
-
-        public bool PortOpened => Controller != null;
-        public bool ShowPorts { get; set; } = true;
+        public bool Loading { get; set; }
         public JoggingModel Jogging { get; set; } = new();
         public FeedrateModel Feedrate { get; set; }
-        public Units MachineUnits { get; set; }
-
 
         protected override void OnInitialized()
         {
-            Client.OnDisconnected = OnDisconnected;
-            Client.SerialPort.OnOpen = OnOpen;
-            Client.SerialPort.OnClose = OnClose;
-            Client.OnError = OnError;
-            Client.Controller.OnState = OnState;
-            Client.Controller.OnSettings = OnSettings;
+            Client.PropertyChanged += Client_PropertyChanged;
+            Client.OnError += Client_OnError;
+            Client.ControllerModule.OnState += ControllerModule_OnState;
+            Client_PropertyChanged(null, null);
         }
 
-        private void OnSettings(ControllerSettings settings)
+        private void ControllerModule_OnState(object sender, Api.Models.ControllerState e)
         {
-            if (settings.Type == ControllerTypes.Grbl)
+            if (Feedrate != null)
             {
-                var unitsSetting = settings.Settings.GetSetting("$13").ToInt() ?? 0;
-                MachineUnits = (Units)unitsSetting;
-
-                // get max feedrate from settings
-                var maxFeedrates = new List<double?>
-                {
-                    settings.Settings.GetSetting("$110").ToDouble(), // x
-                    settings.Settings.GetSetting("$111").ToDouble(), // y
-                    settings.Settings.GetSetting("$112").ToDouble()  // z
-                };
-                double max = maxFeedrates.Max() ?? 0;
-                Feedrate = new FeedrateModel(max, MachineUnits);
+                Feedrate.Units = e.State.Units;
             }
-        }
-
-        private void OnState(ControllerState obj)
-        {
-            Feedrate.Units = obj.State.Units;
-            Jogging.Units = obj.State.Units;
-            ControllerState = obj;
+            Jogging.Units = e.State.Units;
             InvokeAsync(StateHasChanged);
         }
 
-        private void OnError(string e)
+        private void Client_OnError(object sender, string e)
         {
-            InvokeAsync(()=> Snackbar.Add(e, Severity.Error));
+            Loading = false;
+            Snackbar.Add(e, Severity.Error);
         }
 
-        private Task OnClose(ControllerModel arg)
+        private async void Client_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            Controller = null;
-            InvokeAsync(StateHasChanged);
-            return Task.CompletedTask;
+            Loading = false;
+            if (!Client.Connected)
+            {
+                await Connect();
+            }
+            else if (!Client.ControllerModule.ControllerConnected && !Client.SerialPortModule.SerialPorts.Any())
+            {
+                Loading = true;
+                await Client.SerialPortModule.ListPortsAsync();
+            }
+            else if (!Client.ControllerModule.ControllerConnected && Client.SerialPortModule.SerialPorts.Any(p=>p.InUse))
+            {
+                var port = Client.SerialPortModule.SerialPorts.First(p => p.InUse);
+                await Client.SerialPortModule.OpenAsync(port.Port);
+            }
+            else if (Feedrate == null && Client.ControllerModule.ControllerSettings != null)
+            {
+                Feedrate = new FeedrateModel(Client.ControllerModule.ControllerSettings.MaxFeedrate,
+                    Client.ControllerModule.ControllerSettings.MachineUnits);
+            }
+
+            await InvokeAsync(StateHasChanged);
         }
 
-        private Task OnOpen(ControllerModel controller)
+        private async Task Connect()
         {
-            Controller = controller;
-            ShowPorts = false;
-            InvokeAsync(StateHasChanged);
-            return Task.CompletedTask;
+            Loading = true;
+           await Client.ConnectAsync();
         }
 
-        private async Task OnDisconnected()
+        public void Dispose()
         {
-            await Client.ConnectAsync();
+            Client.PropertyChanged -= Client_PropertyChanged;
         }
     }
 }

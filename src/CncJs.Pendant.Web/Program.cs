@@ -1,4 +1,4 @@
-using Cncjs.Api;
+using CncJs.Api;
 using CncJs.Pendant.Web.Shared.Services;
 using MudBlazor.Services;
 

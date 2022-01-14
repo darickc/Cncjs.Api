@@ -6,7 +6,7 @@
     grid-template-rows: auto 1fr 1fr auto;
     grid-gap: 5px;
 
-    > div:first-child {
+     > div:first-child {
         grid-column: span 2;
         font-weight: bold;
         font-size: 1.3em;
@@ -16,4 +16,11 @@
         grid-column: span 2;
         font-weight: bold;
     }
+}
+
+.connect{
+    display:grid;
+    align-items:center;
+    justify-items:center;
+    height:100%;
 }

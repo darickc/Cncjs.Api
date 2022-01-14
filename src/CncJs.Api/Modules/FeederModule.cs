@@ -1,14 +1,25 @@
-﻿namespace CncJs.Api.Modules;
+﻿using CncJs.Api.Models;
+
+namespace CncJs.Api.Modules;
 
 public class FeederModule
 {
     private readonly CncJsClient _client;
-    private const    string      Status = "feeder:status";
-    public event EventHandler OnStatus;
+    private const    string      StatusEvent = "feeder:status";
+
+    public FeederStatus Status { get; set; }
+
+    public event EventHandler<FeederStatus> OnStatus;
+
     internal FeederModule(CncJsClient client)
     {
         _client = client;
-        _client.SocketIoClient.On(Status, _=> OnStatus?.Invoke(this, EventArgs.Empty));
+        _client.SocketIoClient.On(StatusEvent, response=>
+        {
+            Status = response.GetValue<FeederStatus>();
+            OnStatus?.Invoke(this, Status);
+            _client.OnPropertyChanged("FeederStatus");
+        });
     }
 
 }

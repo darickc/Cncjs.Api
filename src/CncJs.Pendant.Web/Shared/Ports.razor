@@ -1,7 +1,6 @@
 ﻿
 <MudPaper Class="pa-16 ma-2" Elevation="3">
     <h3>Ports</h3>
-    <Loading IsLoading="Loading">
         <MudSelect Label="Controller Type" @bind-Value="SelectedControllerType">
             @foreach (var controller in ControllerTypes)
             {
@@ -10,7 +9,7 @@
         </MudSelect>
 
         <MudSelect Label="Port" @bind-Value="SelectedSerialPort">
-            @foreach (var port in AvailablePorts)
+            @foreach (var port in Client.SerialPortModule.SerialPorts)
             {
                 <MudSelectItem Value="@port">@port.Port</MudSelectItem>
             }
@@ -22,7 +21,5 @@
                 <MudSelectItem Value="@rate">@rate</MudSelectItem>
             }
         </MudSelect>
-        <MudButton Class="mt-4" Variant="Variant.Filled" Color="Color.Primary" OnClick="Connect">Open</MudButton>
-    </Loading>
-
+         <MudButton Class="mt-4" Variant="Variant.Filled" Color="Color.Primary" OnClick="Connect">Open</MudButton> 
 </MudPaper>

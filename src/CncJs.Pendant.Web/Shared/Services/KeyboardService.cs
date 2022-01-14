@@ -18,19 +18,27 @@ public class KeyboardService
 
     public async Task Initialize()
     {
-        _initialized = true;
-        await _jsRuntime.InvokeVoidAsync("setJogger", DotNetObjectReference.Create(this));
+        if (!_initialized)
+        {
+            _initialized = true;
+            await _jsRuntime.InvokeVoidAsync("setJogger", DotNetObjectReference.Create(this));
+        }
     }
 
     [JSInvokable]
-    public async Task KeyDown(KeyboardEventArgs args)
+    public void KeyDown(KeyboardEventArgs args)
     {
         OnKeyDown?.Invoke(this, args);
     }
 
     [JSInvokable]
-    public async Task KeyUp(KeyboardEventArgs args)
+    public void KeyUp(KeyboardEventArgs args)
     {
         OnKeyUp?.Invoke(this, args);
+    }
+
+    public async Task<bool> IsTouchScreen()
+    {
+        return await _jsRuntime.InvokeAsync<bool>("isTouchScreen");
     }
 }

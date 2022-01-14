@@ -14,6 +14,7 @@
 
     function keyDown(e) {
 //        console.log(e.code);
+        e.preventDefault();
         if (jogger) {
             var event = {
                 Key:e.key,
@@ -28,6 +29,7 @@
     }
     function keyUp(e) {
 //        console.log(e.code);
+        e.preventDefault();
         if (jogger) {
             var event = {
                 Key:e.key,
@@ -43,4 +45,7 @@
     window.setJogger=function(j){
         jogger = j;
     }
+    window.isTouchScreen = function() {
+        return ('ontouchstart' in window || navigator.maxTouchPoints) ? true : false;      
+    };
 </script>

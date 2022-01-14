@@ -1,11 +1,11 @@
 ﻿<div class="info">
     <div>
-        @Controller?.ControllerType : @Controller?.Port : <span class="active-state @ControllerState?.State?.Status?.ActiveState">@ControllerState?.State?.Status?.ActiveState</span>
+        @Client.ControllerModule.Controller?.ControllerType : @Client.ControllerModule.Controller?.Port : <span class="active-state @Client.ControllerModule.ControllerState?.State?.Status?.ActiveState">@Client.ControllerModule.ControllerState?.State?.Status?.ActiveState</span>
     </div>
     <div>
         <MudButtonGroup OverrideStyles="false">
-            <MudButton Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small" OnClick='() => Command("Cyclestart")'><MudIcon Icon="@Icons.Material.Filled.Refresh"/></MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Dark" Size="Size.Small" OnClick='() => Command("Feedhold")'><MudIcon Icon="@Icons.Material.Filled.FrontHand"/></MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick='() => Command("Cyclestart")'><MudIcon Icon="@Icons.Material.Filled.Refresh"/></MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick='() => Command("Feedhold")'><MudIcon Icon="@Icons.Material.Filled.FrontHand"/></MudButton>
         </MudButtonGroup>
         <MudButtonGroup OverrideStyles="false">
             <MudButton Variant="Variant.Filled" Color="Color.Info" Size="Size.Small" OnClick='() => Command("Home")'><MudIcon Icon="@Icons.Material.Filled.Home"/></MudButton>

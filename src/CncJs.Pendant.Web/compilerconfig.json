@@ -38,5 +38,13 @@
   {
     "outputFile": "Shared/FeedrateDialog.razor.css",
     "inputFile": "Shared/FeedrateDialog.razor.scss"
+  },
+  {
+    "outputFile": "Shared/GcodeWidget.razor.css",
+    "inputFile": "Shared/GcodeWidget.razor.scss"
+  },
+  {
+    "outputFile": "Shared/Sender.razor.css",
+    "inputFile": "Shared/Sender.razor.scss"
   }
 ]

@@ -18,10 +18,6 @@ namespace CncJs.Api;
 public class CncJsClient : IDisposable, INotifyPropertyChanged
 {
     private readonly ILogger            _logger;
-    private          string             _accessToken;
-    private          Controller         _controller;
-    private          ControllerSettings _controllerSettings;
-    private          ControllerState    _controllerState;
 
     // responses
     private const    string   Startup = "startup";
@@ -31,44 +27,7 @@ public class CncJsClient : IDisposable, INotifyPropertyChanged
     public CncJsOptions Options { get; set; }
     public bool Connected => SocketIoClient?.Connected ?? false;
     internal CncJsSocketIo SocketIoClient { get; private set; }
-    internal CncJsHttpClient HttpClient { get; private set; }
-
-    public Controller Controller
-    {
-        get => _controller;
-        set
-        {
-            if (Equals(value, _controller)) return;
-            _controller = value;
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(ControllerConnected));
-        }
-    }
-
-    public ControllerSettings ControllerSettings
-    {
-        get => _controllerSettings;
-        set
-        {
-            if (Equals(value, _controllerSettings)) return;
-            _controllerSettings = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public ControllerState ControllerState
-    {
-        get => _controllerState;
-        set
-        {
-            if (Equals(value, _controllerState)) return;
-            _controllerState = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool ControllerConnected => Connected && Controller != null;
-
+    
     // events
     public event EventHandler OnConnected;
     public event EventHandler OnDisconnected;
@@ -96,25 +55,7 @@ public class CncJsClient : IDisposable, INotifyPropertyChanged
         _logger = logger;
         Initialize();
     }
-
-    private string GenerateAuthToken()
-    {
-        var securityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Options.Secret));
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(new Claim[]
-            {
-                new("id", ""),
-                new("name", Options.Name),
-            }),
-            Expires = DateTime.UtcNow.AddDays(Options.AccessTokenLifetime),
-            SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature)
-        };
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
-    }
-
+    
     public void Initialize()
     {
         if (Options == null)
@@ -122,26 +63,12 @@ public class CncJsClient : IDisposable, INotifyPropertyChanged
             OnError?.Invoke(this,"Options not set!");
             return;
         }
-        _accessToken = GenerateAuthToken();
 
-        SocketIoClient = new CncJsSocketIo(Options.WebSocketUrl, new SocketIOOptions
-        {
-            Query = new KeyValuePair<string, string>[] { new("token", _accessToken) },
-            EIO = 3,
-            Reconnection = true
-        }, _logger);
-        if (SocketIoClient.JsonSerializer is SystemTextJsonSerializer jsonSerializer)
-        {
-            jsonSerializer.OptionsProvider = () => new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
-        }
-
-        HttpClient = new CncJsHttpClient(Options.ApiUrl, _accessToken);
-
+        SocketIoClient = new CncJsSocketIo(Options, _logger);
+        
         TaskModule = new TaskModule(this);
         ControllerModule = new ControllerModule(this);
+        ConfigModule = new ConfigModule(this);
         FeederModule = new FeederModule(this);
         GcodeModule = new GcodeModule(this);
         SenderModule = new SenderModule(this);
@@ -158,7 +85,6 @@ public class CncJsClient : IDisposable, INotifyPropertyChanged
         {
             _logger?.LogInformation($"Connected to {Options.WebSocketUrl}");
             OnConnected?.Invoke(this, EventArgs.Empty);
-            OnPropertyChanged(nameof(ControllerConnected));
             OnPropertyChanged(nameof(Connected));
         };
         SocketIoClient.OnError += (_, e) =>
@@ -170,18 +96,11 @@ public class CncJsClient : IDisposable, INotifyPropertyChanged
         {
             _logger?.LogInformation($"Disconnected from {Options.WebSocketUrl}");
             OnDisconnected?.Invoke(this, EventArgs.Empty);
-            OnPropertyChanged(nameof(ControllerConnected));
             OnPropertyChanged(nameof(Connected));
         };
 
         SocketIoClient.On(Startup, OnStartupEvent);
         SocketIoClient.On(Message, OnMessageEvent);
-
-        SerialPortModule.OnOpen += (_, controller) => Controller = controller;
-        SerialPortModule.OnClose += (_, _) => Controller = null;
-        SerialPortModule.OnChange += (_, controller) => Controller = controller;
-        ControllerModule.OnSettings += (_, settings) => ControllerSettings = settings;
-        ControllerModule.OnState += (_, state) => ControllerState = state;
     }
 
     private void OnStartupEvent(SocketIOResponse obj)
@@ -220,7 +139,7 @@ public class CncJsClient : IDisposable, INotifyPropertyChanged
     }
 
     [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    internal virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

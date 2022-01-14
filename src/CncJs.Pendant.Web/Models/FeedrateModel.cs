@@ -1,5 +1,5 @@
-﻿using Cncjs.Api;
-using Cncjs.Api.Models;
+﻿using CncJs.Api;
+using CncJs.Api.Models;
 
 namespace CncJs.Pendant.Web.Models;
 

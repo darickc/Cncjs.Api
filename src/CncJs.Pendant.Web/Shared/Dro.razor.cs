@@ -1,17 +1,25 @@
-﻿using Cncjs.Api;
-using Cncjs.Api.Models;
+﻿using CncJs.Api;
+using CncJs.Api.Models;
 using Microsoft.AspNetCore.Components;
 
 namespace CncJs.Pendant.Web.Shared
 {
-    public partial class Dro
+    public partial class Dro : IDisposable
     {
-        [Parameter]
-        public ControllerState ControllerState { get; set; }
-        [Parameter]
-        public Units MachineUnits { get; set; }
+        [Inject] public CncJsClient Client { get; set; }
+        public Units MachineUnits => Client.ControllerModule.ControllerSettings?.MachineUnits ?? Units.Metric;
 
-        public State State => ControllerState?.State;
+        public State State => Client.ControllerModule.ControllerState?.State;
+
+        protected override void OnInitialized()
+        {
+            Client.ControllerModule.OnState += ControllerModuleOnOnState;
+        }
+
+        private void ControllerModuleOnOnState(object sender, ControllerState e)
+        {
+            InvokeAsync(StateHasChanged);
+        }
 
         public string GetPosition(string value)
         {
@@ -37,5 +45,9 @@ namespace CncJs.Pendant.Web.Shared
             return value;
         }
 
+        public void Dispose()
+        {
+            Client.ControllerModule.OnState -= ControllerModuleOnOnState;
+        }
     }
 }

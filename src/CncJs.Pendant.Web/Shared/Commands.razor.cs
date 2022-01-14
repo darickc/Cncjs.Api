@@ -1,5 +1,5 @@
-﻿using Cncjs.Api;
-using Cncjs.Api.Models;
+﻿using CncJs.Api;
+using CncJs.Api.Models;
 using CncJs.Pendant.Web.Models;
 using CncJs.Pendant.Web.Shared.Services;
 using CSharpFunctionalExtensions;
@@ -19,21 +19,17 @@ namespace CncJs.Pendant.Web.Shared
         public JoggingModel Jogging { get; set; }
         [Parameter]
         public FeedrateModel Feedrate { get; set; }
-        [Parameter]
-        public ControllerState ControllerState { get; set; }
-        [Parameter]
-        public ControllerModel Controller { get; set; }
 
-        public MacroModel[] Macros { get; set; }
 
-        public bool Disabled => ControllerState?.State?.Status?.ActiveState == "Alarm";
+        public Macro[] Macros { get; set; } = Array.Empty<Macro>();
+
+        public bool Disabled => Client.ControllerModule.ControllerState?.State?.Status?.ActiveState == "Alarm";
 
         protected override async Task OnInitializedAsync()
         {
-            KeyboardService.OnKeyDown += OnKeyDown;
             KeyboardService.OnKeyUp += OnKeyUp;
             await KeyboardService.Initialize();
-            await Client.Macro.GetMacros()
+            await Client.MacroModule.GetMacros()
                 .Tap(macros => Macros = macros)
                 .OnFailure(e=> Snackbar.Add(e, Severity.Error));
             StateHasChanged();
@@ -59,10 +55,10 @@ namespace CncJs.Pendant.Web.Shared
                     StateHasChanged();
                     break;
                 case "F+":
-                    Feedrate.Next();
+                    Feedrate?.Next();
                     break;
                 case "F-":
-                    Feedrate.Prev();
+                    Feedrate?.Prev();
                     break;
                 case "FOpen":
                     var parameters2 = new DialogParameters { { "Feedrate", Feedrate } };
@@ -70,31 +66,26 @@ namespace CncJs.Pendant.Web.Shared
                     StateHasChanged();
                     break;
                 case "Unlock":
-                    await Client.Controller.UnlockAsync(Controller.Port);
+                    await Client.ControllerModule.UnlockAsync();
                     break;
                 case "Reset":
-                    await Client.Controller.ResetAsync(Controller.Port);
+                    await Client.ControllerModule.ResetAsync();
                     break;
                 case "Home":
-                    await Client.Controller.HomeAsync(Controller.Port);
+                    await Client.ControllerModule.HomeAsync();
                     break;
             }
         }
 
         private async Task SetZero(string cmd)
         {
-            var workspace = ControllerState.State.Parserstate.Modal.Workspace;
-            await Client.Gcode.SetZeroAsync(Controller.Port, workspace,cmd);
+            var workspace = Client.ControllerModule.ControllerState.State.Parserstate.Modal.Workspace;
+            await Client.GcodeModule.SetZeroAsync( workspace,cmd);
         }
 
         private async Task Jog(string value)
         {
-            if (ControllerState == null)
-            {
-                return;
-            }
-
-            await Client.Gcode.JogAsync(Controller.Port, value, Jogging.Distance, Feedrate.Feedrate);
+            await Client.GcodeModule.JogAsync( value, Jogging.Distance, Feedrate.Feedrate);
         }
 
         private async Task RunMacro(string id)
@@ -104,10 +95,16 @@ namespace CncJs.Pendant.Web.Shared
                 return;
             }
 
-            await Client.Macro.RunMacro(Controller.Port, id);
+            var context = new Context
+            {
+                Xmax = 100,
+                Xmin = -100,
+                Ymax = 100,
+                Ymin = -100
+            };
+            await Client.MacroModule.RunMacro(id, context);
         }
 
-        public async void OnKeyDown(object sender, KeyboardEventArgs args){}
 
         public async void OnKeyUp(object sender, KeyboardEventArgs args)
         {
@@ -131,7 +128,6 @@ namespace CncJs.Pendant.Web.Shared
 
         public void Dispose()
         {
-            KeyboardService.OnKeyDown -= OnKeyDown;
             KeyboardService.OnKeyUp -= OnKeyUp;
         }
     }

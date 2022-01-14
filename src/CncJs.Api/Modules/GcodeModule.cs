@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using CncJs.Api.Models;
 
 namespace CncJs.Api.Modules;
 
@@ -16,28 +17,38 @@ public class GcodeModule
     private const string GcodeCommand = "gcode";
     private const string Command = "command";
 
-    public event EventHandler OnLoad;
+    public Gcode Gcode { get; set; }
+
+    public event EventHandler<Gcode> OnLoad;
     public event EventHandler OnUnLoad;
 
     internal GcodeModule(CncJsClient client)
     {
         _client = client;
 
-        _client.SocketIoClient.On(Load, _ => OnLoad?.Invoke(this, EventArgs.Empty));
-        _client.SocketIoClient.On(UnLoad, _ => OnUnLoad?.Invoke(this, EventArgs.Empty));
+        _client.SocketIoClient.On(Load, response =>
+        {
+            Gcode = new Gcode(response.GetValue<string>(), response.GetValue<string>(1));
+            OnLoad?.Invoke(this, Gcode);
+            _client.OnPropertyChanged("Gcode");
+        });
+        _client.SocketIoClient.On(UnLoad, _ =>
+        {
+            Gcode = null;
+            OnUnLoad?.Invoke(this, EventArgs.Empty);
+            _client.OnPropertyChanged("Gcode");
+        });
     }
 
     public async Task SendCommandAsync(string cmd)
     {
-        if (_client.ControllerConnected)
+        if (!_client.ControllerModule.ControllerConnected && !_client.Connected)
             return;
-        await _client.SocketIoClient.EmitAsync(Command, _client.Controller.Port, GcodeCommand, cmd);
+        await _client.SocketIoClient.EmitAsync(Command, _client.ControllerModule.Controller.Port, GcodeCommand, cmd);
     }
 
     public async Task JogAsync(string value, double distance, double feedrate)
     {
-        if (!_client.ControllerConnected)
-            return;
         var movementType = "G91";
         if (value.Contains("0"))
         {
@@ -52,8 +63,6 @@ public class GcodeModule
 
     public async Task SetZeroAsync(string workspace, string value)
     {
-        if (_client.ControllerConnected)
-            return;
         var results = Regex.Matches(value, ZeroPattern);
         var c = string.Join("", results.Select(r => $"{r.Groups[0].Value}0"));
         await SendCommandAsync($"G10 L20 {workspace} {c}");
@@ -61,8 +70,6 @@ public class GcodeModule
 
     public async Task CancelJogAsync()
     {
-        if (_client.ControllerConnected)
-            return;
         await _client.SerialPortModule.SendRawAsync("\x85;\n");
     }
 

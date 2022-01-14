@@ -38,9 +38,5 @@ public class App : BackgroundService, IDisposable
     {
         await _cnc.ConnectAsync();
     }
-
-    public void Dispose()
-    {
-        _cnc.Dispose();
-    }
+    
 }

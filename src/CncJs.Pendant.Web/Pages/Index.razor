@@ -1,19 +1,29 @@
 ﻿@page "/"
 
-@if (ShowPorts || Controller is null)
-{
-    <Ports></Ports>
-}
-else
-{
-    <div class="main">
-        <div>
-            <InfoBar ControllerState="ControllerState" Controller="Controller"></InfoBar>
+<Loading IsLoading="Loading">
+    @if (!Client.Connected)
+    {
+        <div class="connect">
+            <MudButton Variant="Variant.Filled" OnClick="Connect">Connect</MudButton>
         </div>
-        <Dro ControllerState="ControllerState" MachineUnits="MachineUnits"></Dro>
-        <Jogger ControllerState="ControllerState" Controller="Controller" Jogging="Jogging" Feedrate="Feedrate"></Jogger>
-        <div></div>
-        <Commands Jogging="Jogging" ControllerState="ControllerState" Controller="Controller" Feedrate="Feedrate"></Commands>
-        <div style="background: green"></div>
-    </div>
-}
+    }
+    else if (!Client.ControllerModule.ControllerConnected)
+    {
+        <Ports></Ports>
+    }
+    else
+    {
+        <div class="main">
+            <div>
+                <InfoBar></InfoBar>
+            </div>
+            <Dro></Dro>
+            <Jogger Jogging="Jogging" Feedrate="Feedrate"></Jogger>
+            <div></div>
+            <Commands Jogging="Jogging" Feedrate="Feedrate"></Commands>
+            <div>
+                <Sender></Sender>
+            </div>
+        </div>
+    }
+</Loading>

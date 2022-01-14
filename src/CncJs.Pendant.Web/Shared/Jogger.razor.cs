@@ -1,5 +1,4 @@
-﻿using Cncjs.Api;
-using Cncjs.Api.Models;
+﻿using CncJs.Api;
 using CncJs.Pendant.Web.Models;
 using CncJs.Pendant.Web.Shared.Services;
 using Microsoft.AspNetCore.Components;
@@ -13,10 +12,7 @@ namespace CncJs.Pendant.Web.Shared
         [Inject] KeyboardService KeyboardService { get; set; }
         [Inject] public CncJsClient Client { get; set; }
         [Inject] public ILogger<Jogger> Logger { get; set; }
-        [Parameter]
-        public ControllerState ControllerState { get; set; }
-        [Parameter]
-        public ControllerModel Controller { get; set; }
+        
         [Parameter]
         public JoggingModel Jogging { get; set; }
         [Parameter]
@@ -24,8 +20,10 @@ namespace CncJs.Pendant.Web.Shared
 
         public Timer Timer { get; set; }
 
+        public bool IsTouchscreen { get; set; }
 
-        public bool Disabled => ControllerState?.State?.Status?.ActiveState == "Alarm";
+
+        public bool Disabled => Client.ControllerModule.ControllerState?.State?.Status?.ActiveState == "Alarm";
 
         private string                        _currentValue;
 
@@ -40,31 +38,35 @@ namespace CncJs.Pendant.Web.Shared
             KeyboardService.OnKeyDown += OnKeyDown;
             KeyboardService.OnKeyUp += OnKeyUp;
             await KeyboardService.Initialize();
+            IsTouchscreen = await KeyboardService.IsTouchScreen();
         }
         
         private async void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            await Client.Gcode.JogAsync(Controller.Port, _currentValue, 1000, Feedrate.Feedrate);
+            await Client.GcodeModule.JogAsync( _currentValue, 1000, Feedrate.Feedrate);
             Timer.Enabled = false;
         }
 
-        private void Jog(string value)
+        private void Jog(string value, bool touch= false)
         {
-            if (ControllerState == null)
+            if (IsTouchscreen && !touch)
             {
                 return;
             }
-
             _currentValue = value;
             Timer.Start();
         }
 
-        private async Task CancelJog()
+        private async Task CancelJog(bool touch = false)
         {
+            if (IsTouchscreen && !touch)
+            {
+                return;
+            }
             if (Timer.Enabled)
             {
                 Timer.Stop();
-                await Client.Gcode.JogAsync(Controller.Port, _currentValue, Jogging.Distance, Feedrate.Feedrate);
+                await Client.GcodeModule.JogAsync( _currentValue, Jogging.Distance, Feedrate.Feedrate);
             }
             else
             {
@@ -74,9 +76,7 @@ namespace CncJs.Pendant.Web.Shared
 
         private async Task StopJogging()
         {
-            //if (ControllerState.State.Status.ActiveState == "Jog")
-                await Client.SerialPort.SendRawAsync(Controller.Port, "\x85;\n");
-            //await Client.Controller.FeedholdAsync(Controller.Port);
+            await Client.GcodeModule.CancelJogAsync();
         }
 
         public async void OnKeyDown(object sender, KeyboardEventArgs args)
@@ -87,37 +87,37 @@ namespace CncJs.Pendant.Web.Shared
                 switch (args.Code)
                 {
                     case "Numpad1":
-                        Jog("X-Y-");
+                        Jog("X-Y-", true);
                         break;
                     case "Numpad2":
-                        Jog("Y-");
+                        Jog("Y-", true);
                         break;
                     case "Numpad3":
-                        Jog("X+Y-");
+                        Jog("X+Y-", true);
                         break;
                     case "Numpad4":
-                        Jog("X-");
+                        Jog("X-", true);
                         break;
                     case "Numpad5":
                         await StopJogging();
                         break;
                     case "Numpad6":
-                        Jog("X+");
+                        Jog("X+", true);
                         break;
                     case "Numpad7":
-                        Jog("X-Y+");
+                        Jog("X-Y+", true);
                         break;
                     case "Numpad8":
-                        Jog("Y+");
+                        Jog("Y+", true);
                         break;
                     case "Numpad9":
-                        Jog("X+Y+");
+                        Jog("X+Y+", true);
                         break;
                     case "NumpadAdd":
-                        Jog("Z+");
+                        Jog("Z+", true);
                         break;
                     case "NumpadEnter":
-                        Jog("Z-");
+                        Jog("Z-", true);
                         break;
                 }
 
@@ -129,9 +129,20 @@ namespace CncJs.Pendant.Web.Shared
             Logger.LogInformation($"keyup: {args.Key}:{args.Code}");
             if (!args.Repeat)
             {
-                if (args.Code != "Numpad5")
+                switch (args.Code)
                 {
-                    await CancelJog();
+                    case "Numpad1":
+                    case "Numpad2":
+                    case "Numpad3":
+                    case "Numpad4":
+                    case "Numpad6":
+                    case "Numpad7":
+                    case "Numpad8":
+                    case "Numpad9":
+                    case "NumpadAdd":
+                    case "NumpadEnter":
+                        await CancelJog(true);
+                        break;
                 }
             }
         }

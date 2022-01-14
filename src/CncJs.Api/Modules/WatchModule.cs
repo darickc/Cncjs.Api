@@ -21,6 +21,6 @@ public class WatchModule
 
     public Task<Result<WatchPath>> GetFiles(string path = "")
     {
-        return _client.HttpClient.Get<WatchPath>(GetFilesPath, new KeyValuePair<string, string>(QueryPath, path));
+        return _client.SocketIoClient.Get<WatchPath>(GetFilesPath, new KeyValuePair<string, string>(QueryPath, path));
     }
 }
