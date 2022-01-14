@@ -36,6 +36,7 @@ namespace CncJs.Pendant.Web.Pages
         {
             Loading = false;
             Snackbar.Add(e, Severity.Error);
+            InvokeAsync(StateHasChanged);
         }
 
         private async void Client_PropertyChanged(object sender, PropertyChangedEventArgs e)

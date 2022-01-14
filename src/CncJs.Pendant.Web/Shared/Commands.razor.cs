@@ -117,10 +117,10 @@ namespace CncJs.Pendant.Web.Shared
                     await SetZero("XY");
                     break;
                 case "NumpadMultiply":
-                    await Command("+");
-                    break;
-                case "NumpadSubtract":
                     await Command("-");
+                    break;
+                case "NumpadDivide":
+                    await Command("+");
                     break;
             }
             StateHasChanged();

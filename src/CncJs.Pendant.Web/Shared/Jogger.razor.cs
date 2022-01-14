@@ -114,10 +114,10 @@ namespace CncJs.Pendant.Web.Shared
                         Jog("X+Y+", true);
                         break;
                     case "NumpadAdd":
-                        Jog("Z+", true);
-                        break;
-                    case "NumpadEnter":
                         Jog("Z-", true);
+                        break;
+                    case "NumpadSubtract":
+                        Jog("Z+", true);
                         break;
                 }
 
@@ -140,7 +140,7 @@ namespace CncJs.Pendant.Web.Shared
                     case "Numpad8":
                     case "Numpad9":
                     case "NumpadAdd":
-                    case "NumpadEnter":
+                    case "NumpadSubtract":
                         await CancelJog(true);
                         break;
                 }
