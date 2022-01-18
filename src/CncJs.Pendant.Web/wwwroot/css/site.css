@@ -13,3 +13,16 @@ body {
   left: 0;
   background: #eee;
 }
+
+.mud-dialog .mud-dialog-content {
+  position: absolute;
+  top: 55px;
+  bottom: 55px;
+  width: 100%;
+  overflow-y: auto;
+}
+.mud-dialog .mud-dialog-actions {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}

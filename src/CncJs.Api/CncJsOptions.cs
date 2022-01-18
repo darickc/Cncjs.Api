@@ -8,6 +8,8 @@ public class CncJsOptions
     public string SocketAddress { get; set; } = "localhost";
     public int AccessTokenLifetime { get; set; } = 30;
     public bool SecureConnection { get; set; }
+    public string Token { get; set; }
+
     private string Port => SocketPort != 80 ? $":{SocketPort}" : "";
     private string WebSocketProtocol => SecureConnection ? "wss" : "ws";
     private string ApiProtocol => SecureConnection ? "https" : "http";

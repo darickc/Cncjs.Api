@@ -1,0 +1,22 @@
+﻿<MudDialog>
+    <DialogContent>
+        <div class="files">
+            <div class="heading">Name</div>
+            <div class="heading">Date</div>
+            <div class="heading">Size</div>
+
+            @if (Client.WatchModule.Files != null)
+            {
+                @foreach (var file in Client.WatchModule.Files.OrderBy(f=>f.FileType))
+                {
+                    <FileComponent File="file" OnClick="Select" Level="0"></FileComponent>
+                }
+            }
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="Close" Disabled="SelectedFile == null">Open</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Refresh">Refresh</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Cancel">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

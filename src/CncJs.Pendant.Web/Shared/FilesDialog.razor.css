@@ -1,0 +1,10 @@
+﻿.files {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-gap: 5px;
+  align-items: center;
+}
+
+.heading {
+  font-weight: bold;
+}

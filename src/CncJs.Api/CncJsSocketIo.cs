@@ -21,7 +21,7 @@ internal class CncJsSocketIo : SocketIO
     {
         _options = options;
         _logger = logger;
-        _accessToken = GenerateAuthToken();
+        _accessToken = string.IsNullOrEmpty(options.Token) ? GenerateAuthToken() : options.Token;
         Options.Query = new KeyValuePair<string, string>[] { new("token", _accessToken) };
         Options.EIO = 3;
         Options.Reconnection = true;
@@ -75,6 +75,7 @@ internal class CncJsSocketIo : SocketIO
         var temp = query.ToList();
         temp.Add(new KeyValuePair<string, string>("token", _accessToken));
         var url = $"{_options.ApiUrl}{path}?{string.Join("&", temp.Select(t => $"{t.Key}={t.Value}"))}";
+        _logger.LogInformation($"Retrieving: {url}");
         return Result.Try(() => HttpClient.GetFromJsonAsync<T>(url));
     }
 }

@@ -46,5 +46,13 @@
   {
     "outputFile": "Shared/Sender.razor.css",
     "inputFile": "Shared/Sender.razor.scss"
+  },
+  {
+    "outputFile": "Shared/FilesDialog.razor.css",
+    "inputFile": "Shared/FilesDialog.razor.scss"
+  },
+  {
+    "outputFile": "Shared/FileComponent.razor.css",
+    "inputFile": "Shared/FileComponent.razor.scss"
   }
 ]

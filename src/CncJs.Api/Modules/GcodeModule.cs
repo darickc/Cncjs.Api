@@ -78,6 +78,6 @@ public class GcodeModule
     {
         if (!_client.ControllerModule.ControllerConnected && !_client.Connected)
             return;
-        await _client.SocketIoClient.EmitAsync(Command, UnLoadCommand);
+        await _client.SocketIoClient.EmitAsync(Command, UnLoad);
     }
 }

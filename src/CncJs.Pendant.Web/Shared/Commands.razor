@@ -27,7 +27,7 @@
     </MudButtonGroup>
     @if (Macros?.Length == 2)
     {
-        <MudButton Class="macro" Variant="Variant.Filled" Color="Color.Dark" OnClick='() => RunMacro(Macros[0].Id)' Disabled="Disabled" FullWidth="true">@Macros[1].Name</MudButton>
+        <MudButton Class="macro" Variant="Variant.Filled" Color="Color.Dark" OnClick='() => RunMacro(Macros[1].Id)' Disabled="Disabled" FullWidth="true">@Macros[1].Name</MudButton>
     }
     else if(Macros?.Length > 2)
     {

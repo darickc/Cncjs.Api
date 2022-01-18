@@ -1,0 +1,36 @@
+﻿@using CncJs.Api.Models
+<div class="@(File.Selected ? "selected" : "")" @onclick="()=>Select(File)">
+    @for (int i = 0; i < Level; i++)
+    {
+        <Text>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</text>
+    }
+    @if (File.FileType == WatchFileType.Directory)
+    {
+        if (File.Expanded)
+        {
+            <MudIcon Icon="@Icons.Material.Filled.ExpandMore"/>
+        }
+        else
+        {
+            <MudIcon Icon="@Icons.Material.Filled.ChevronRight"/>
+        }
+    }
+        <MudIcon Icon="@GetIcon(File)"/>
+        @File.Name
+    @*<MudButton Variant="Variant.Text" OnClick="() => Select(File)">
+    </MudButton>*@
+</div>
+<div>@File.Mtime.ToLocalTime().ToString("MMM d, yyyy h:mm tt")</div>
+<div>
+    @if (File.FileType == WatchFileType.File)
+    {
+        @FormatSize(File.Size)
+    }
+</div>
+@if (File.Expanded && File.Files != null)
+{
+    foreach (var watchFile in File.Files.OrderBy(f=>f.FileType))
+    {
+        <FileComponent File="watchFile" OnClick="Select" Level="Level + 1"></FileComponent>
+    }
+}

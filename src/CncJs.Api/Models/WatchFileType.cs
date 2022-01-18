@@ -2,6 +2,6 @@
 
 public enum WatchFileType
 {
-    File,
-    Directory
+    Directory,
+    File
 }
