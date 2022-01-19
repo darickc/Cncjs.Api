@@ -15,7 +15,7 @@ namespace CncJs.Pendant.Web.Shared
 
         protected override async Task OnInitializedAsync()
         {
-            Client.ControllerModule.OnState += ControllerModuleOnOnState;
+            Client.ControllerModule.OnState += ControllerModuleOnState;
             Client.GcodeModule.OnLoad += GcodeModule_OnLoad;
             if (Client.GcodeModule.Gcode != null)
             {
@@ -26,7 +26,12 @@ namespace CncJs.Pendant.Web.Shared
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             _rendered = true;
-            await LoadGcode();
+            if (firstRender)
+            {
+                await JsRuntime.InvokeVoidAsync("toolpathSetup");
+                await LoadGcode();
+            }
+            //window.toolpathSetup
         }
 
         private async void GcodeModule_OnLoad(object sender, Gcode e)
@@ -36,14 +41,28 @@ namespace CncJs.Pendant.Web.Shared
 
         private async Task LoadGcode()
         {
-            if (_rendered && Client.GcodeModule.Gcode != null && _gcode?.FileName != Client.GcodeModule.Gcode.FileName && Client.ControllerModule.ControllerState != null)
+            if (_rendered && Client.GcodeModule.Gcode != null && Client.ControllerModule.ControllerState != null)
             {
-                await JsRuntime.InvokeVoidAsync("showToolpath", Client.GcodeModule.Gcode.Code, Client.ControllerModule.ControllerState.State.Status.Wpos, Client.ControllerModule.ControllerState.State.Status.Mpos);
-                _gcode = Client.GcodeModule.Gcode;
+
+                try
+                {
+                    if (_gcode?.FileName != Client.GcodeModule.Gcode.FileName)
+                    {
+                        await JsRuntime.InvokeVoidAsync("displayer.showToolpath", Client.GcodeModule.Gcode.Code, Client.ControllerModule.ControllerState.State.Parserstate.Modal, Client.ControllerModule.ControllerState.State.Status.Wpos, Client.ControllerModule.ControllerState.State.Status.Mpos);
+                        _gcode = Client.GcodeModule.Gcode;
+                    }
+                    else
+                    {
+                        await JsRuntime.InvokeVoidAsync("displayer.reDrawTool", Client.ControllerModule.ControllerState.State.Parserstate.Modal, Client.ControllerModule.ControllerState.State.Status.Mpos);
+                    }
+                }
+                catch
+                {
+                }
             }
         }
 
-        private async void ControllerModuleOnOnState(object sender, ControllerState e)
+        private async void ControllerModuleOnState(object sender, ControllerState e)
         {
             await LoadGcode();
         }

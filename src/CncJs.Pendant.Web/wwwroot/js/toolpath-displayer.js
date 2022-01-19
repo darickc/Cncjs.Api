@@ -2,7 +2,9 @@
 
 "use strict;"
 
-$(function () {
+window.toolpathSetup = function() {
+
+
     var root = window;
 
     var canvas = document.getElementById("small-toolpath");
@@ -27,7 +29,7 @@ $(function () {
     };
     var bboxIsSet = false;
 
-    var resetBbox = function () {
+    var resetBbox = function() {
         bbox.min.x = Infinity;
         bbox.min.y = Infinity;
         bbox.max.x = -Infinity;
@@ -36,7 +38,7 @@ $(function () {
 
     }
 
-    var formatLimit = function (mm) {
+    var formatLimit = function(mm) {
         return (units == 'G20') ? (mm / 25.4).toFixed(3) + '"' : mm.toFixed(2) + 'mm';
     }
 
@@ -44,9 +46,9 @@ $(function () {
     var toolY = null;
     var toolSave = null;
     var toolRadius = 6;
-    var toolRectWH = toolRadius * 2 + 4;  // Slop to encompass the entire image area
+    var toolRectWH = toolRadius * 2 + 4; // Slop to encompass the entire image area
 
-    var drawTool = function (pos) {
+    var drawTool = function(pos) {
         toolX = xToPixel(pos.x) - toolRadius - 2;
         toolY = yToPixel(pos.y) - toolRadius - 2;
         toolSave = tp.getImageData(toolX, toolY, toolRectWH, toolRectWH);
@@ -59,7 +61,7 @@ $(function () {
         tp.stroke();
     }
 
-    var drawOrigin = function (radius) {
+    var drawOrigin = function(radius) {
         tp.beginPath();
         tp.strokeStyle = 'red';
         tp.arc(0, 0, radius, 0, Math.PI * 2, false);
@@ -73,10 +75,10 @@ $(function () {
     var xOffset = 0;
     var yOffset = 0;
     var scaler = 1;
-    var xToPixel = function (x) { return scaler * x + xOffset; }
-    var yToPixel = function (y) { return -scaler * y + yOffset; }
+    var xToPixel = function(x) { return scaler * x + xOffset; }
+    var yToPixel = function(y) { return -scaler * y + yOffset; }
 
-    var transformCanvas = function () {
+    var transformCanvas = function() {
         toolSave = null;
         if (rect == undefined) {
             rect = canvas.parentNode.getBoundingClientRect();
@@ -159,13 +161,13 @@ $(function () {
 
         drawOrigin(imageWidth * 0.04);
     }
-    var wrappedDegrees = function (radians) {
+    var wrappedDegrees = function(radians) {
         var degrees = radians * 180 / Math.PI;
         return degrees >= 0 ? degrees : degrees + 360;
     }
 
     var bboxHandlers = {
-        addLine: function (modal, start, end) {
+        addLine: function(modal, start, end) {
             // Update units in case it changed in a previous line
             units = modal.units;
 
@@ -175,7 +177,7 @@ $(function () {
             bbox.max.y = Math.max(bbox.max.y, start.y, end.y);
             bboxIsSet = true;
         },
-        addArcCurve: function (modal, start, end, center) {
+        addArcCurve: function(modal, start, end, center) {
             // To determine the precise bounding box of a circular arc we
             // must account for the possibility that the arc crosses one or
             // more axes.  If so, the bounding box includes the "bulges" of
@@ -184,7 +186,7 @@ $(function () {
             // Update units in case it changed in a previous line
             units = modal.units;
 
-            if (modal.motion == 'G2') {  // clockwise
+            if (modal.motion == 'G2') { // clockwise
                 var tmp = start;
                 start = end;
                 end = tmp;
@@ -209,69 +211,69 @@ $(function () {
             // but this way is probably the most computationally efficient.
             // It avoids any use of transcendental functions.  Every path
             // through this decision tree is either 4 or 5 simple comparisons.
-            if (ey >= 0) {              // End in upper half plane
-                if (ex > 0) {             // End in quadrant 0 - X+ Y+
-                    if (sy >= 0) {          // Start in upper half plane
-                        if (sx > 0) {         // Start in quadrant 0 - X+ Y+
-                            if (sx <= ex) {     // wraparound
+            if (ey >= 0) { // End in upper half plane
+                if (ex > 0) { // End in quadrant 0 - X+ Y+
+                    if (sy >= 0) { // Start in upper half plane
+                        if (sx > 0) { // Start in quadrant 0 - X+ Y+
+                            if (sx <= ex) { // wraparound
                                 px = py = mx = my = true;
                             }
-                        } else {              // Start in quadrant 1 - X- Y+
+                        } else { // Start in quadrant 1 - X- Y+
                             mx = my = px = true;
                         }
-                    } else {                // Start in lower half plane
-                        if (sx > 0) {         // Start in quadrant 3 - X+ Y-
+                    } else { // Start in lower half plane
+                        if (sx > 0) { // Start in quadrant 3 - X+ Y-
                             px = true;
-                        } else {              // Start in quadrant 2 - X- Y-
+                        } else { // Start in quadrant 2 - X- Y-
                             my = px = true;
                         }
                     }
-                } else {                  // End in quadrant 1 - X- Y+
-                    if (sy >= 0) {          // Start in upper half plane
-                        if (sx > 0) {         // Start in quadrant 0 - X+ Y+
+                } else { // End in quadrant 1 - X- Y+
+                    if (sy >= 0) { // Start in upper half plane
+                        if (sx > 0) { // Start in quadrant 0 - X+ Y+
                             py = true;
-                        } else {              // Start in quadrant 1 - X- Y+
-                            if (sx <= ex) {     // wraparound
+                        } else { // Start in quadrant 1 - X- Y+
+                            if (sx <= ex) { // wraparound
                                 px = py = mx = my = true;
                             }
                         }
-                    } else {                // Start in lower half plane
-                        if (sx > 0) {         // Start in quadrant 3 - X+ Y-
+                    } else { // Start in lower half plane
+                        if (sx > 0) { // Start in quadrant 3 - X+ Y-
                             px = py = true;
-                        } else {              // Start in quadrant 2 - X- Y-
+                        } else { // Start in quadrant 2 - X- Y-
                             my = px = py = true;
                         }
                     }
                 }
-            } else {                    // ey < 0 - end in lower half plane
-                if (ex > 0) {             // End in quadrant 3 - X+ Y+
-                    if (sy >= 0) {          // Start in upper half plane
-                        if (sx > 0) {         // Start in quadrant 0 - X+ Y+
+            } else { // ey < 0 - end in lower half plane
+                if (ex > 0) { // End in quadrant 3 - X+ Y+
+                    if (sy >= 0) { // Start in upper half plane
+                        if (sx > 0) { // Start in quadrant 0 - X+ Y+
                             py = mx = my = true;
-                        } else {              // Start in quadrant 1 - X- Y+
+                        } else { // Start in quadrant 1 - X- Y+
                             mx = my = true;
                         }
-                    } else {                // Start in lower half plane
-                        if (sx > 0) {         // Start in quadrant 3 - X+ Y-
-                            if (sx >= ex) {      // wraparound
+                    } else { // Start in lower half plane
+                        if (sx > 0) { // Start in quadrant 3 - X+ Y-
+                            if (sx >= ex) { // wraparound
                                 px = py = mx = my = true;
                             }
-                        } else {              // Start in quadrant 2 - X- Y-
+                        } else { // Start in quadrant 2 - X- Y-
                             my = true;
                         }
                     }
-                } else {                  // End in quadrant 2 - X- Y+
-                    if (sy >= 0) {          // Start in upper half plane
-                        if (sx > 0) {         // Start in quadrant 0 - X+ Y+
+                } else { // End in quadrant 2 - X- Y+
+                    if (sy >= 0) { // Start in upper half plane
+                        if (sx > 0) { // Start in quadrant 0 - X+ Y+
                             py = mx = true;
-                        } else {              // Start in quadrant 1 - X- Y+
+                        } else { // Start in quadrant 1 - X- Y+
                             mx = true;
                         }
-                    } else {                // Start in lower half plane
-                        if (sx > 0) {         // Start in quadrant 3 - X+ Y-
+                    } else { // Start in lower half plane
+                        if (sx > 0) { // Start in quadrant 3 - X+ Y-
                             px = py = mx = true;
-                        } else {              // Start in quadrant 2 - X- Y-
-                            if (sx >= ex) {      // wraparound
+                        } else { // Start in quadrant 2 - X- Y-
+                            if (sx >= ex) { // wraparound
                                 px = py = mx = my = true;
                             }
                         }
@@ -293,7 +295,7 @@ $(function () {
 
     var initialMoves = true;
     var displayHandlers = {
-        addLine: function (modal, start, end) {
+        addLine: function(modal, start, end) {
             var motion = modal.motion;
             if (motion == 'G0') {
                 tp.strokeStyle = initialMoves ? 'red' : 'green';
@@ -311,7 +313,7 @@ $(function () {
             tp.lineTo(end.x, end.y);
             tp.stroke();
         },
-        addArcCurve: function (modal, start, end, center) {
+        addArcCurve: function(modal, start, end, center) {
             var motion = modal.motion;
 
             var deltaX1 = start.x - center.x;
@@ -334,16 +336,13 @@ $(function () {
         },
     };
 
-    var ToolpathDisplayer = function () {
+    var ToolpathDisplayer = function() {
     };
 
     var offset;
 
-    ToolpathDisplayer.prototype.showToolpath = function (gcode, wpos, mpos) {
-        inInches = false;//$('[data-route="workspace"] [id="units"]').text() != 'mm';
-
-        var factor = inInches ? 25.4 : 1.0;
-
+    ToolpathDisplayer.prototype.showToolpath = function (gcode, modal, wpos, mpos) {
+        var factor = modal.units === 'G20' ? 25.4 : 1.0;
         var initialPosition = {
             x: wpos.x * factor,
             y: wpos.y * factor,
@@ -378,7 +377,7 @@ $(function () {
         drawTool(initialPosition);
     };
 
-    ToolpathDisplayer.prototype.reDrawTool = function (modal, mpos) {
+    ToolpathDisplayer.prototype.reDrawTool = function(modal, mpos) {
         if (toolSave != null) {
             tp.putImageData(toolSave, toolX, toolY);
             var factor = modal.units === 'G20' ? 25.4 : 1.0;
@@ -392,6 +391,9 @@ $(function () {
         }
     }
 
+    ToolpathDisplayer.prototype.getBoundingBox = function() {
+        return bbox;
+    }
 
     root.displayer = new ToolpathDisplayer();
-});
+}

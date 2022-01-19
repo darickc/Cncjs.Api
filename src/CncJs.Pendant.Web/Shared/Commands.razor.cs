@@ -5,12 +5,15 @@ using CncJs.Pendant.Web.Shared.Services;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using MudBlazor;
 
 namespace CncJs.Pendant.Web.Shared
 {
     public partial class Commands : IDisposable
     {
+        [Inject] public ILogger<Commands> Logger { get; set; }
+        [Inject] public IJSRuntime JsRuntime { get; set; }
         [Inject] KeyboardService KeyboardService { get; set; }
         [Inject] public IDialogService DialogService { get; set; }
         [Inject] public CncJsClient Client { get; set; }
@@ -95,12 +98,16 @@ namespace CncJs.Pendant.Web.Shared
                 return;
             }
 
+
+
+            var boundingBox = await GetBoundingBox();
+
             var context = new Context
             {
-                Xmax = 100,
-                Xmin = -100,
-                Ymax = 100,
-                Ymin = -100
+                Xmax = boundingBox.Max.X,
+                Xmin = boundingBox.Min.X,
+                Ymax = boundingBox.Max.Y,
+                Ymin = boundingBox.Min.Y
             };
             await Client.MacroModule.RunMacro(id, context);
         }
@@ -124,6 +131,30 @@ namespace CncJs.Pendant.Web.Shared
                     break;
             }
             StateHasChanged();
+        }
+
+        private async Task<BoundingBox> GetBoundingBox()
+        {
+            try
+            {
+                return await JsRuntime.InvokeAsync<BoundingBox>("displayer.getBoundingBox");
+            }
+            catch
+            {
+                return new BoundingBox
+                {
+                    Max = new Coordinates
+                    {
+                        Y = 0,
+                        X = 0
+                    },
+                    Min = new Coordinates
+                    {
+                        Y = 0,
+                        X = 0
+                    }
+                };
+            }
         }
 
         public void Dispose()
