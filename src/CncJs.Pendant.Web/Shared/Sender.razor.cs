@@ -29,7 +29,7 @@ namespace CncJs.Pendant.Web.Shared
             Client.ControllerModule.OnState += ControllerModuleOnOnState;
         }
 
-        private async void ControllerModuleOnOnState(object? sender, ControllerState e)
+        private async void ControllerModuleOnOnState(object sender, ControllerState e)
         {
             await InvokeAsync(StateHasChanged);
         }

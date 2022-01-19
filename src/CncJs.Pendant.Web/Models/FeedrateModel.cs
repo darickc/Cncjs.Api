@@ -36,7 +36,7 @@ public class FeedrateModel
 
     
 
-    public FeedrateModel(double maxFeedrate, Units machineUnits)
+    public FeedrateModel(double maxFeedrate, Units machineUnits, Units currentUnits)
     {
         if (machineUnits == Units.Metric)
         {
@@ -57,6 +57,7 @@ public class FeedrateModel
         
         Feedrate = Feedrates.Contains(Feedrate) ? Feedrate : Feedrates.Last();
         _index = Feedrates.IndexOf(Feedrate);
+        Units = currentUnits;
     }
 
     private List<double> CreateFeedrates(double maxFeedrate, double interval, params double[] initialRates)

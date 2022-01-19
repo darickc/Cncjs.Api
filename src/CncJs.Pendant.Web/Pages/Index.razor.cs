@@ -19,7 +19,14 @@ namespace CncJs.Pendant.Web.Pages
             Client.PropertyChanged += Client_PropertyChanged;
             Client.OnError += Client_OnError;
             Client.ControllerModule.OnState += ControllerModule_OnState;
+            Client.ControllerModule.OnSettings += ControllerModule_OnSettings;
             Client_PropertyChanged(null, null);
+        }
+
+        private void ControllerModule_OnSettings(object sender, Api.Models.ControllerSettings e)
+        {
+            SetFeedrate();
+            InvokeAsync(StateHasChanged);
         }
 
         private void ControllerModule_OnState(object sender, Api.Models.ControllerState e)
@@ -28,8 +35,22 @@ namespace CncJs.Pendant.Web.Pages
             {
                 Feedrate.Units = e.State.Units;
             }
+            else
+            {
+                SetFeedrate();
+            }
             Jogging.Units = e.State.Units;
             InvokeAsync(StateHasChanged);
+        }
+
+        private void SetFeedrate()
+        {
+            if (Feedrate == null && (Client.ControllerModule.ControllerSettings?.MaxFeedrate ?? 0) > 0 && Client.ControllerModule.ControllerState != null)
+            {
+                Feedrate = new FeedrateModel(Client.ControllerModule.ControllerSettings.MaxFeedrate, 
+                    Client.ControllerModule.ControllerSettings.MachineUnits, 
+                    Client.ControllerModule.ControllerState.State.Units);
+            }
         }
 
         private void Client_OnError(object sender, string e)
@@ -56,11 +77,11 @@ namespace CncJs.Pendant.Web.Pages
                 var port = Client.SerialPortModule.SerialPorts.First(p => p.InUse);
                 await Client.SerialPortModule.OpenAsync(port.Port);
             }
-            else if (Feedrate == null && Client.ControllerModule.ControllerSettings != null)
-            {
-                Feedrate = new FeedrateModel(Client.ControllerModule.ControllerSettings.MaxFeedrate,
-                    Client.ControllerModule.ControllerSettings.MachineUnits);
-            }
+            // else if (Feedrate == null && Client.ControllerModule.ControllerSettings != null)
+            // {
+            //     Feedrate = new FeedrateModel(Client.ControllerModule.ControllerSettings.MaxFeedrate,
+            //         Client.ControllerModule.ControllerSettings.MachineUnits);
+            // }
 
             await InvokeAsync(StateHasChanged);
         }
