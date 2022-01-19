@@ -6,6 +6,7 @@ public class Gcode
     public string Code { get; set; }
     public Context Context { get; set; }
 
+
     public Gcode(string fileName, string code)
     {
         FileName = fileName;
