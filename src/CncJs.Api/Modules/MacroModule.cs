@@ -24,6 +24,8 @@ public class MacroModule
 
     public async Task RunMacro(string id, params object[] data)
     {
+        if (!_client.ControllerModule.ControllerConnected && !_client.Connected)
+            return;
         await _client.SocketIoClient.EmitAsync(Command, _client.ControllerModule.Controller.Port, RunCommand, id, data.Length == 1 ? data[0] : data);
     }
 }

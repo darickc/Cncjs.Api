@@ -38,4 +38,9 @@ public class WatchModule
         if(_client.ControllerModule.ControllerConnected)
             await _client.SocketIoClient.EmitAsync(Command, _client.ControllerModule.Controller.Port, Load, file.Path);
     }
+
+    internal void Clear()
+    {
+        Files = null;
+    }
 }

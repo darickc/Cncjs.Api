@@ -11,7 +11,7 @@ public class WorkflowModule
     private const string Resume       = "resume";
     private const string Command      = "command";
 
-    public string State { get; set; }
+    public string State { get; private set; }
 
     public event EventHandler<string> OnState;
     internal WorkflowModule(CncJsClient client)
@@ -21,7 +21,6 @@ public class WorkflowModule
         {
             State = response.GetValue<string>();
             OnState?.Invoke(this, State);
-            _client.OnPropertyChanged("WorkflowState");
         });
     }
 
@@ -50,6 +49,10 @@ public class WorkflowModule
     public async Task ResumeAsync()
     {
         await SendCommandAsync(Resume);
+    }
+    internal void Clear()
+    {
+        State = null;
     }
     
 }

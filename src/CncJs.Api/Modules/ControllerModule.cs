@@ -20,44 +20,13 @@ public class ControllerModule
     private const string Feedhold = "feedhold";
     private const string Cyclestart = "cyclestart";
    
-    private Controller         _controller;
-    private ControllerSettings _controllerSettings;
-    private ControllerState    _controllerState;
-
     public bool ControllerConnected => Controller != null;
-    public Controller Controller
-    {
-        get => _controller;
-        set
-        {
-            if (Equals(value, _controller)) return;
-            _controller = value;
-            _client.OnPropertyChanged();
-            _client.OnPropertyChanged(nameof(ControllerConnected));
-        }
-    }
 
-    public ControllerSettings ControllerSettings
-    {
-        get => _controllerSettings;
-        set
-        {
-            if (Equals(value, _controllerSettings)) return;
-            _controllerSettings = value;
-            _client.OnPropertyChanged();
-        }
-    }
+    public Controller Controller { get; private set; }
 
-    public ControllerState ControllerState
-    {
-        get => _controllerState;
-        set
-        {
-            if (Equals(value, _controllerState)) return;
-            _controllerState = value;
-            _client.OnPropertyChanged();
-        }
-    }
+    public ControllerSettings ControllerSettings { get; private set; }
+
+    public ControllerState ControllerState { get; private set; }
 
     public event EventHandler<ControllerSettings> OnSettings;
     public event EventHandler<ControllerState> OnState;
@@ -74,6 +43,7 @@ public class ControllerModule
 
         _client.SocketIoClient.On(Change, response =>
         {
+            Clear();
             Controller = response.GetValue<Controller>();
             OnChange?.Invoke(this, Controller);
         });
@@ -84,7 +54,7 @@ public class ControllerModule
         });
         _client.SocketIoClient.On(Close, response =>
         {
-            Controller = null;
+            Clear();
             OnClose?.Invoke(this, response.GetValue<Controller>());
         });
         _client.SocketIoClient.On(Error, response => OnError?.Invoke(this, response.GetValue<Controller>()));
@@ -145,6 +115,13 @@ public class ControllerModule
     {
         if (ControllerConnected && _client.Connected)
             await _client.SocketIoClient.EmitAsync(Command, Controller.Port, Cyclestart);
+    }
+
+    internal void Clear()
+    {
+        Controller = null;
+        ControllerState = null;
+        ControllerSettings = null;
     }
 
 }

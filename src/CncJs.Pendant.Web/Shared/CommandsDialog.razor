@@ -1,0 +1,17 @@
+﻿<MudDialog>
+    <DialogContent>
+        <div class="buttons">
+            @foreach (var command in Commands.Where(c=>c.Enabled))
+            {
+                <div>
+                    <MudButton Variant="Variant.Filled" Color="Command == command ? Color.Dark : Color.Primary" OnClick='() => SelectCommand(command)' FullWidth="true">@command.Title</MudButton>
+                </div>
+            }
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="Close" Disabled="Command == null">Run</MudButton>
+        @*<MudButton Color="Color.Primary" OnClick="Refresh">Refresh</MudButton>*@
+        <MudButton Color="Color.Primary" OnClick="Cancel">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

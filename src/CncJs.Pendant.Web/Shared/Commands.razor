@@ -17,21 +17,14 @@
     </MudButtonGroup>
     @if (Macros?.Length > 0)
     {
-        <MudButton Class="macro" Variant="Variant.Filled" Color="Color.Dark" OnClick='() => RunMacro(Macros[0].Id)' Disabled="Disabled">@Macros[0].Name</MudButton>
     }
+    <MudButton Class="macro" Variant="Variant.Filled" Color="Color.Dark" OnClick='() => Command("Macros")' Disabled="Disabled">Macros</MudButton>
     <MudButtonGroup Class="four-column" OverrideStyles="false">
         <MudButton Variant="Variant.Filled" Color="Color.Dark" OnClick='() => SetZero("X")' Disabled="Disabled" FullWidth="true">Zero X</MudButton>
         <MudButton Variant="Variant.Filled" Color="Color.Dark" OnClick='() => SetZero("Y")' Disabled="Disabled" FullWidth="true">Zero Y</MudButton>
         <MudButton Variant="Variant.Filled" Color="Color.Dark" OnClick='() => SetZero("XY")' Disabled="Disabled" FullWidth="true">Zero X/Y</MudButton>
         <MudButton Variant="Variant.Filled" Color="Color.Dark" OnClick='() => SetZero("Z")' Disabled="Disabled" FullWidth="true">Zero Z</MudButton>
     </MudButtonGroup>
-    @if (Macros?.Length == 2)
-    {
-        <MudButton Class="macro" Variant="Variant.Filled" Color="Color.Dark" OnClick='() => RunMacro(Macros[1].Id)' Disabled="Disabled" FullWidth="true">@Macros[1].Name</MudButton>
-    }
-    else if(Macros?.Length > 2)
-    {
-        <MudButton Class="macro" Variant="Variant.Filled" Color="Color.Dark" OnClick='() => Command("Macro")' Disabled="Disabled" FullWidth="true">Macros</MudButton>
-    }
+    <MudButton Class="macro" Variant="Variant.Filled" Color="Color.Dark" OnClick='() => Command("Commands")' Disabled="Disabled" FullWidth="true">Commands</MudButton>
 </div>
 

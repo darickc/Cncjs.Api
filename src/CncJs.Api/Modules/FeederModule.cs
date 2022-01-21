@@ -7,7 +7,7 @@ public class FeederModule
     private readonly CncJsClient _client;
     private const    string      StatusEvent = "feeder:status";
 
-    public FeederStatus Status { get; set; }
+    public FeederStatus Status { get; private set; }
 
     public event EventHandler<FeederStatus> OnStatus;
 
@@ -18,8 +18,12 @@ public class FeederModule
         {
             Status = response.GetValue<FeederStatus>();
             OnStatus?.Invoke(this, Status);
-            _client.OnPropertyChanged("FeederStatus");
         });
+    }
+
+    internal void Clear()
+    {
+        Status = null;
     }
 
 }

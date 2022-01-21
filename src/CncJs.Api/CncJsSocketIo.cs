@@ -78,4 +78,28 @@ internal class CncJsSocketIo : SocketIO
         _logger.LogInformation($"Retrieving: {url}");
         return Result.Try(() => HttpClient.GetFromJsonAsync<T>(url));
     }
+
+    internal Task<Result<T>> Post<T>(string path, object content, params KeyValuePair<string, string>[] query)
+    {
+        var temp = query.ToList();
+        temp.Add(new KeyValuePair<string, string>("token", _accessToken));
+        var url = $"{_options.ApiUrl}{path}?{string.Join("&", temp.Select(t => $"{t.Key}={t.Value}"))}";
+        _logger.LogInformation($"Retrieving: {url}");
+        return Result.Try(() => HttpClient.PostAsync(url, new StringContent(System.Text.Json.JsonSerializer.Serialize(content))))
+            .Ensure(response => response.IsSuccessStatusCode,"Call Failed")
+            .Map(response => response.Content.ReadFromJsonAsync<T>())
+            .OnFailure(e=> _logger.LogError($"Call Failed: {url}"));
+    }
+
+    internal Task<Result> Post(string path, object content, params KeyValuePair<string, string>[] query)
+    {
+        var temp = query.ToList();
+        temp.Add(new KeyValuePair<string, string>("token", _accessToken));
+        var url = $"{_options.ApiUrl}{path}?{string.Join("&", temp.Select(t => $"{t.Key}={t.Value}"))}";
+        _logger.LogInformation($"Retrieving: {url}");
+        return Result.Try(() => HttpClient.PostAsync(url, new StringContent(System.Text.Json.JsonSerializer.Serialize(content))))
+            .Ensure(response => response.IsSuccessStatusCode, "Call Failed")
+            .Bind(_=> Result.Success())
+            .OnFailure(e => _logger.LogError($"Call Failed: {url}"));
+    }
 }

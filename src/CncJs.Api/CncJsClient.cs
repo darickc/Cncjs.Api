@@ -15,7 +15,7 @@ using SocketIOClient;
 using SocketIOClient.JsonSerializer;
 
 namespace CncJs.Api;
-public class CncJsClient : IDisposable, INotifyPropertyChanged
+public class CncJsClient : IDisposable
 {
     private readonly ILogger            _logger;
 
@@ -34,7 +34,7 @@ public class CncJsClient : IDisposable, INotifyPropertyChanged
     public event EventHandler<string> OnError;
     public event EventHandler<Startup> OnStartup;
     public event EventHandler OnMessage;
-    public event PropertyChangedEventHandler PropertyChanged;
+    // public event PropertyChangedEventHandler PropertyChanged;
 
     // Modules
     public TaskModule TaskModule { get; private set; }
@@ -47,6 +47,7 @@ public class CncJsClient : IDisposable, INotifyPropertyChanged
     public WorkflowModule WorkflowModule { get; private set; }
     public WatchModule WatchModule { get; private set; }
     public MacroModule MacroModule { get; private set; }
+    public CommandModule CommandModule { get; private set; }
 
     public CncJsClient(CncJsOptions options, ILogger<CncJsClient> logger)
     {
@@ -76,6 +77,7 @@ public class CncJsClient : IDisposable, INotifyPropertyChanged
         WorkflowModule = new WorkflowModule(this);
         WatchModule = new WatchModule(this);
         MacroModule = new MacroModule(this);
+        CommandModule = new CommandModule(this);
         HandleEvents();
     }
 
@@ -85,22 +87,46 @@ public class CncJsClient : IDisposable, INotifyPropertyChanged
         {
             _logger?.LogInformation($"Connected to {Options.WebSocketUrl}");
             OnConnected?.Invoke(this, EventArgs.Empty);
-            OnPropertyChanged(nameof(Connected));
+            // OnPropertyChanged(nameof(Connected));
         };
         SocketIoClient.OnError += (_, e) =>
         {
             _logger?.LogInformation($"Error from {Options.WebSocketUrl}: {e}");
             OnError?.Invoke(this, e);
         };
-        SocketIoClient.OnDisconnected += (_, _) =>
-        {
-            _logger?.LogInformation($"Disconnected from {Options.WebSocketUrl}");
-            OnDisconnected?.Invoke(this, EventArgs.Empty);
-            OnPropertyChanged(nameof(Connected));
-        };
+        SocketIoClient.OnDisconnected +=SocketIoClientOnOnDisconnected;
 
         SocketIoClient.On(Startup, OnStartupEvent);
         SocketIoClient.On(Message, OnMessageEvent);
+
+        ControllerModule.OnClose += ControllerModule_OnChange;
+        ControllerModule.OnChange += ControllerModule_OnChange;
+    }
+    
+
+    private void ControllerModule_OnChange(object sender, Controller e)
+    {
+        ControllerModule.Clear();
+        FeederModule.Clear();
+        GcodeModule.Clear();
+        SenderModule.Clear();
+        WorkflowModule.Clear();
+        WatchModule.Clear();
+    }
+
+    private void SocketIoClientOnOnDisconnected(object sender, string e)
+    {
+        ControllerModule.Clear();
+        FeederModule.Clear();
+        GcodeModule.Clear();
+        SenderModule.Clear();
+        SerialPortModule.Clear();
+        WorkflowModule.Clear();
+        WatchModule.Clear();
+
+        _logger?.LogInformation($"Disconnected from {Options.WebSocketUrl}");
+        OnDisconnected?.Invoke(this, EventArgs.Empty);
+        // OnPropertyChanged(nameof(Connected));
     }
 
     private void OnStartupEvent(SocketIOResponse obj)
@@ -138,10 +164,10 @@ public class CncJsClient : IDisposable, INotifyPropertyChanged
         SocketIoClient?.Dispose();
     }
 
-    [NotifyPropertyChangedInvocator]
-    internal virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
+    // [NotifyPropertyChangedInvocator]
+    // internal virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    // {
+    //     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    // }
 }
 

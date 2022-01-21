@@ -58,5 +58,13 @@
   {
     "outputFile": "Shared/ToolpathViewer.razor.css",
     "inputFile": "Shared/ToolpathViewer.razor.scss"
+  },
+  {
+    "outputFile": "Shared/MacrosDialog.razor.css",
+    "inputFile": "Shared/MacrosDialog.razor.scss"
+  },
+  {
+    "outputFile": "Shared/CommandsDialog.razor.css",
+    "inputFile": "Shared/CommandsDialog.razor.scss"
   }
 ]

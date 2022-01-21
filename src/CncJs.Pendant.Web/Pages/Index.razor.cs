@@ -16,11 +16,51 @@ namespace CncJs.Pendant.Web.Pages
 
         protected override void OnInitialized()
         {
-            Client.PropertyChanged += Client_PropertyChanged;
+            // Client.PropertyChanged += Client_PropertyChanged;
             Client.OnError += Client_OnError;
             Client.ControllerModule.OnState += ControllerModule_OnState;
             Client.ControllerModule.OnSettings += ControllerModule_OnSettings;
-            Client_PropertyChanged(null, null);
+            Client.OnConnected += Client_OnConnected;
+            Client.OnDisconnected += ClientOnOnDisconnected;
+            Client.ControllerModule.OnOpen += ControllerModule_OnOpen;
+            Client.ControllerModule.OnClose += ControllerModule_OnClose;
+            Client.ControllerModule.OnChange += ControllerModule_OnChange;
+            Client.SerialPortModule.OnList += SerialPortModule_OnList;
+            Load();
+        }
+
+        private void SerialPortModule_OnList(object sender, List<Api.Models.SerialPort> e)
+        {
+            Load();
+        }
+
+        private async void ControllerModule_OnChange(object sender, Api.Models.Controller e)
+        {
+            if (e.InUse)
+            {
+                await Client.SerialPortModule.OpenAsync(e.Port);
+            }
+            await InvokeAsync(StateHasChanged);
+        }
+
+        private void ControllerModule_OnClose(object sender, Api.Models.Controller e)
+        {
+            InvokeAsync(StateHasChanged);
+        }
+
+        private void ControllerModule_OnOpen(object sender, Api.Models.Controller e)
+        {
+            InvokeAsync(StateHasChanged);
+        }
+
+        private void ClientOnOnDisconnected(object sender, EventArgs e)
+        {
+            InvokeAsync(StateHasChanged);
+        }
+
+        private void Client_OnConnected(object sender, EventArgs e)
+        {
+            Load();
         }
 
         private void ControllerModule_OnSettings(object sender, Api.Models.ControllerSettings e)
@@ -60,9 +100,9 @@ namespace CncJs.Pendant.Web.Pages
             InvokeAsync(StateHasChanged);
         }
 
-        private async void Client_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private async void Load()
         {
-            Loading = false;
+            
             if (!Client.Connected)
             {
                 await Connect();
@@ -77,12 +117,11 @@ namespace CncJs.Pendant.Web.Pages
                 var port = Client.SerialPortModule.SerialPorts.First(p => p.InUse);
                 await Client.SerialPortModule.OpenAsync(port.Port);
             }
-            // else if (Feedrate == null && Client.ControllerModule.ControllerSettings != null)
-            // {
-            //     Feedrate = new FeedrateModel(Client.ControllerModule.ControllerSettings.MaxFeedrate,
-            //         Client.ControllerModule.ControllerSettings.MachineUnits);
-            // }
-
+            else if (Feedrate == null && Client.ControllerModule.ControllerSettings != null)
+            {
+                SetFeedrate();
+            }
+            Loading = false;
             await InvokeAsync(StateHasChanged);
         }
 
@@ -90,11 +129,28 @@ namespace CncJs.Pendant.Web.Pages
         {
             Loading = true;
            await Client.ConnectAsync();
+           try
+           {
+
+           }
+           catch
+           {
+               Loading = false;
+               await InvokeAsync(StateHasChanged);
+            }
         }
 
         public void Dispose()
         {
-            Client.PropertyChanged -= Client_PropertyChanged;
+            Client.OnConnected -= Client_OnConnected;
+            Client.OnDisconnected -= ClientOnOnDisconnected;
+            Client.OnError -= Client_OnError;
+            Client.ControllerModule.OnState -= ControllerModule_OnState;
+            Client.ControllerModule.OnSettings -= ControllerModule_OnSettings;
+            Client.ControllerModule.OnOpen -= ControllerModule_OnOpen;
+            Client.ControllerModule.OnClose -= ControllerModule_OnClose;
+            Client.ControllerModule.OnChange -= ControllerModule_OnChange;
+            Client.SerialPortModule.OnList -= SerialPortModule_OnList;
         }
     }
 }

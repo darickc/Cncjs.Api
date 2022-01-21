@@ -18,7 +18,7 @@ public class GcodeModule
     private const string GcodeCommand = "gcode";
     private const string Command = "command";
 
-    public Gcode Gcode { get; set; }
+    public Gcode Gcode { get; private set; }
 
     public event EventHandler<Gcode> OnLoad;
     public event EventHandler OnUnLoad;
@@ -31,13 +31,11 @@ public class GcodeModule
         {
             Gcode = new Gcode(response.GetValue<string>(), response.GetValue<string>(1));
             OnLoad?.Invoke(this, Gcode);
-            _client.OnPropertyChanged("Gcode");
         });
         _client.SocketIoClient.On(UnLoad, _ =>
         {
             Gcode = null;
             OnUnLoad?.Invoke(this, EventArgs.Empty);
-            _client.OnPropertyChanged("Gcode");
         });
     }
 
@@ -79,5 +77,10 @@ public class GcodeModule
         if (!_client.ControllerModule.ControllerConnected && !_client.Connected)
             return;
         await _client.SocketIoClient.EmitAsync(Command, UnLoad);
+    }
+
+    internal void Clear()
+    {
+        Gcode = null;
     }
 }

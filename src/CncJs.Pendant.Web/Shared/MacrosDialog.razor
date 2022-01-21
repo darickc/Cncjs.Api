@@ -1,0 +1,17 @@
+﻿<MudDialog>
+    <DialogContent>
+        <div class="buttons">
+            @foreach (var macro in Macros)
+            {
+                <div>
+                    <MudButton Variant="Variant.Filled" Color="Macro == macro ? Color.Dark : Color.Primary" OnClick='() => SelectMacro(macro)' FullWidth="true">@macro.Name</MudButton>
+                </div>
+            }
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="Close" Disabled="Macro == null">Run</MudButton>
+        @*<MudButton Color="Color.Primary" OnClick="Refresh">Refresh</MudButton>*@
+        <MudButton Color="Color.Primary" OnClick="Cancel">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

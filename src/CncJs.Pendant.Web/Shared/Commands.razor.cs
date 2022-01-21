@@ -25,6 +25,7 @@ namespace CncJs.Pendant.Web.Shared
 
 
         public Macro[] Macros { get; set; } = Array.Empty<Macro>();
+        public Command[] CommandItems { get; set; } = Array.Empty<Command>();
 
         public bool Disabled => !Jogging?.CanJog(Client.ControllerModule.ControllerState?.State?.Status?.ActiveState) ?? true;
 
@@ -35,6 +36,9 @@ namespace CncJs.Pendant.Web.Shared
             await Client.MacroModule.GetMacros()
                 .Tap(macros => Macros = macros)
                 .OnFailure(e=> Snackbar.Add(e, Severity.Error));
+            await Client.CommandModule.GetCommands()
+                .Tap(commands => CommandItems = commands)
+                .OnFailure(e => Snackbar.Add(e, Severity.Error));
             StateHasChanged();
         }
 
@@ -77,6 +81,30 @@ namespace CncJs.Pendant.Web.Shared
                 case "Home":
                     await Client.ControllerModule.HomeAsync();
                     break;
+                case "Macros":
+                    var parameters3 = new DialogParameters { { "Macros", Macros } };
+                    var result2 = await DialogService.Show<MacrosDialog>("Macros", parameters3, options).Result;
+                    if (!result2.Cancelled)
+                    {
+                        if (result2.Data is Macro macro)
+                        {
+                            await RunMacro(macro.Id);
+                        }
+                    }
+                    StateHasChanged();
+                    break;
+                case "Commands":
+                    var parameters4 = new DialogParameters { { "Commands", CommandItems } };
+                    var result = await DialogService.Show<CommandsDialog>("Commands", parameters4, options).Result;
+                    if (!result.Cancelled)
+                    {
+                        if (result.Data is Command command)
+                        {
+                            await Client.CommandModule.Run(command.Id);
+                        }
+                    }
+                    StateHasChanged();
+                    break;
             }
         }
 
@@ -97,9 +125,6 @@ namespace CncJs.Pendant.Web.Shared
             {
                 return;
             }
-
-
-
             var boundingBox = await GetBoundingBox();
 
             var context = new Context
@@ -111,7 +136,6 @@ namespace CncJs.Pendant.Web.Shared
             };
             await Client.MacroModule.RunMacro(id, context);
         }
-
 
         public async void OnKeyUp(object sender, KeyboardEventArgs args)
         {

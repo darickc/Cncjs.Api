@@ -17,7 +17,7 @@ public class SerialPortModule
     private const string CloseCommand       = "close";
     private const string WriteCommand       = "write";
 
-    public List<SerialPort> SerialPorts { get; set; } = new();
+    public List<SerialPort> SerialPorts { get; private set; } = new();
 
     public event EventHandler<List<SerialPort>> OnList;
     public event EventHandler<string> OnRead;
@@ -30,7 +30,6 @@ public class SerialPortModule
         {
             SerialPorts = response.GetValue<List<SerialPort>>();
             OnList?.Invoke(this, SerialPorts);
-            _client.OnPropertyChanged(nameof(SerialPorts));
         });
         _client.SocketIoClient.On(Read, response => OnRead?.Invoke(this, response.GetValue<string>()));
         _client.SocketIoClient.On(Write, response => OnWrite?.Invoke(this, response.GetValue<string>()));
@@ -67,5 +66,10 @@ public class SerialPortModule
         if (!_client.ControllerModule.ControllerConnected && !_client.Connected)
             return;
         await _client.SocketIoClient.EmitAsync(WriteCommand, _client.ControllerModule.Controller.Port, cmd.Length == 1 ? cmd[0] : cmd);
+    }
+
+    internal void Clear()
+    {
+        SerialPorts.Clear();
     }
 }
