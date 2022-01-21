@@ -397,3 +397,4 @@ window.toolpathSetup = function() {
 
     root.displayer = new ToolpathDisplayer();
 }
+

@@ -48,4 +48,24 @@
         window.isTouchScreen = function() {
             return ('ontouchstart' in window || navigator.maxTouchPoints) ? true : false;
         };
+        window.getBoundingBox = function() {
+            var bbox = {};
+            if (window.displayer) {
+                bbox = window.displayer.getBoundingBox();
+            }
+            if (bbox.min.x === Infinity) {
+                bbox = {
+                    min: {
+                        x: 0,
+                        y: 0
+                    },
+                    max: {
+                        x: 0,
+                        y: 0
+                    }
+                };
+            }
+            
+            return bbox;
+        };
 </script>

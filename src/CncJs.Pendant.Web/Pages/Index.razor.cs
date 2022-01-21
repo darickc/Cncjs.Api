@@ -50,7 +50,7 @@ namespace CncJs.Pendant.Web.Pages
 
         private void ControllerModule_OnOpen(object sender, Api.Models.Controller e)
         {
-            InvokeAsync(StateHasChanged);
+            Load();
         }
 
         private void ClientOnOnDisconnected(object sender, EventArgs e)
@@ -120,6 +120,10 @@ namespace CncJs.Pendant.Web.Pages
             else if (Feedrate == null && Client.ControllerModule.ControllerSettings != null)
             {
                 SetFeedrate();
+            }
+            else
+            {
+                await Client.GcodeModule.SendCommandAsync("$$");
             }
             Loading = false;
             await InvokeAsync(StateHasChanged);

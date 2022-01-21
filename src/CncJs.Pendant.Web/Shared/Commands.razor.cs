@@ -159,26 +159,7 @@ namespace CncJs.Pendant.Web.Shared
 
         private async Task<BoundingBox> GetBoundingBox()
         {
-            try
-            {
-                return await JsRuntime.InvokeAsync<BoundingBox>("displayer.getBoundingBox");
-            }
-            catch
-            {
-                return new BoundingBox
-                {
-                    Max = new Coordinates
-                    {
-                        Y = 0,
-                        X = 0
-                    },
-                    Min = new Coordinates
-                    {
-                        Y = 0,
-                        X = 0
-                    }
-                };
-            }
+            return await JsRuntime.InvokeAsync<BoundingBox>("getBoundingBox");
         }
 
         public void Dispose()
