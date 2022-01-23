@@ -1,6 +1,6 @@
 ﻿.sender {
   display: grid;
-  grid-template-columns: auto 1fr 1fr;
+  grid-template-columns: auto auto 1fr;
   align-items: center;
   grid-gap: 5px;
 }
@@ -8,4 +8,6 @@
   display: grid;
   grid-template-columns: auto 1fr auto;
   grid-gap: 5px;
+  white-space: nowrap;
+  overflow-x: hidden;
 }

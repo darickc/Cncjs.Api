@@ -7,9 +7,11 @@ namespace CncJs.Pendant.Web.Shared
 {
     public partial class Sender : IDisposable
     {
+        [Inject] ISnackbar Snackbar { get; set; }
         [Inject] public CncJsClient Client { get; set; }
         [Inject] public IDialogService DialogService { get; set; }
         public SenderStatus Status { get; set; }
+        public SenderStatus PreviousStatus { get; set; }
 
         public bool CanPlay => Client.ControllerModule?.ControllerState?.State?.Status?.ActiveState != "Alarm" && 
                                Client.WorkflowModule.State is WorkflowState.Idle or WorkflowState.Paused && 
@@ -27,6 +29,12 @@ namespace CncJs.Pendant.Web.Shared
             Client.SenderModule.OnStatus += SenderModule_OnStatus;
             Client.WorkflowModule.OnState += WorkflowModule_OnState;
             Client.ControllerModule.OnState += ControllerModuleOnOnState;
+            Client.FeederModule.OnStatus += FeederModuleOnOnStatus;
+        }
+
+        private async void FeederModuleOnOnStatus(object sender, FeederStatus e)
+        {
+            await InvokeAsync(StateHasChanged);
         }
 
         private async void ControllerModuleOnOnState(object sender, ControllerState e)
@@ -36,11 +44,21 @@ namespace CncJs.Pendant.Web.Shared
 
         private async void WorkflowModule_OnState(object sender, string e)
         {
+            if (e == WorkflowState.Idle && Client.GcodeModule.Gcode is { CurrentToolIndex: > 0 })
+            {
+                Client.GcodeModule.Gcode.CurrentToolIndex = 0;
+            }
             await InvokeAsync(StateHasChanged);
         }
 
         private async void SenderModule_OnStatus(object sender, SenderStatus e)
         {
+            if (Status is { Hold: true, HoldReason.Data: "M6" } && PreviousStatus != null && PreviousStatus is not { Hold: true, HoldReason.Data: "M6" } && Client.GcodeModule.Gcode != null)
+            {
+                Client.GcodeModule.Gcode.CurrentToolIndex++;
+            }
+
+            PreviousStatus = Status;
             Status = e;
             await InvokeAsync(StateHasChanged);
         }
@@ -94,6 +112,7 @@ namespace CncJs.Pendant.Web.Shared
             Client.SenderModule.OnStatus -= SenderModule_OnStatus;
             Client.WorkflowModule.OnState -= WorkflowModule_OnState;
             Client.ControllerModule.OnState -= ControllerModuleOnOnState;
+            Client.FeederModule.OnStatus += FeederModuleOnOnStatus;
         }
     }
 }

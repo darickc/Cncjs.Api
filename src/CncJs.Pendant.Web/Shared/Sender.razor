@@ -13,7 +13,19 @@
         @Status?.Name
     </div>
     <div>
-        @if (Status is {Received: > 0 })
+        @if (Status is {Hold:true, HoldReason.Data: "M6"} && Client.ControllerModule.ControllerState is {State.Status.ActiveState:"Idle"})
+        {
+            <MudAlert Severity="Severity.Info" Dense="true">M6:
+                @if (@Client.GcodeModule.Gcode != null)
+                {
+                    <Text>
+                        @Client.GcodeModule.Gcode.CurrentTool?.ToString()
+                    </Text>
+                }
+
+            </MudAlert>
+        }
+        else if (Status is {Received: > 0 })
         {
             @Status.Elapsed.AsString()
             <MudProgressLinear Color="Color.Primary" Value="@Status.Received" Max="@Status.Total"/>

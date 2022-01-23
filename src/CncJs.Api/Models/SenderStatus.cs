@@ -4,7 +4,7 @@ public class SenderStatus
 {
     public int Sp { get; set; }
     public bool Hold { get; set; }
-    //public string HoldReason { get; set; }
+    public SenderHoldReason HoldReason { get; set; }
     public string Name { get; set; }
     public Context Context { get; set; }
     public long Size { get; set; }
