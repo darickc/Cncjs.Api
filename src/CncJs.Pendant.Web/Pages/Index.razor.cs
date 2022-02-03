@@ -121,7 +121,7 @@ namespace CncJs.Pendant.Web.Pages
             {
                 SetFeedrate();
             }
-            else
+            else if(Client.ControllerModule.ControllerConnected)
             {
                 await Client.GcodeModule.SendCommandAsync("$$");
             }
