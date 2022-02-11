@@ -24,7 +24,7 @@
                     ShiftKey: e.shiftKey,
                     AltKey: e.altKey
                 }
-                jogger.invokeMethodAsync('KeyDown', event);
+                jogger.invokeMethodAsync('OnKeyDown', event);
             }
         }
         function keyUp(e) {
@@ -39,7 +39,7 @@
                     ShiftKey: e.shiftKey,
                     AltKey: e.altKey
                 }
-                jogger.invokeMethodAsync('KeyUp', event);
+                jogger.invokeMethodAsync('OnKeyUp', event);
             }
         }
         window.setJogger=function(j){

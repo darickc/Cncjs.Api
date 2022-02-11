@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CncJs.Api;
 using CncJs.Pendant.Web.Shared.Services;
 using MudBlazor.Services;
@@ -17,10 +18,21 @@ if(builder.Environment.IsDevelopment())
 builder.Configuration.AddJsonFile("settings.json", true);
 
 CncJsOptions options = new CncJsOptions();
+var secretFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".cncrc");
+if (File.Exists(secretFile))
+{
+    var json = await File.ReadAllTextAsync(secretFile);
+    options = JsonSerializer.Deserialize<CncJsOptions>(json, new JsonSerializerOptions
+    {
+        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    }) ?? new CncJsOptions();
+}
 builder.Configuration.Bind(options);
+
 builder.Services.AddSingleton(options);
 builder.Services.AddSingleton<CncJsClient>();
-builder.Services.AddScoped<KeyboardService>();
+builder.Services.AddScoped<JavascriptService>();
 
 var app = builder.Build();
 

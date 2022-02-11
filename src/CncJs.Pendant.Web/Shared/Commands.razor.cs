@@ -14,7 +14,7 @@ namespace CncJs.Pendant.Web.Shared
     {
         [Inject] public ILogger<Commands> Logger { get; set; }
         [Inject] public IJSRuntime JsRuntime { get; set; }
-        [Inject] KeyboardService KeyboardService { get; set; }
+        [Inject] JavascriptService KeyboardService { get; set; }
         [Inject] public IDialogService DialogService { get; set; }
         [Inject] public CncJsClient Client { get; set; }
         [Inject] ISnackbar Snackbar { get; set; }
@@ -31,7 +31,7 @@ namespace CncJs.Pendant.Web.Shared
 
         protected override async Task OnInitializedAsync()
         {
-            KeyboardService.OnKeyUp += OnKeyUp;
+            KeyboardService.KeyUp += OnKeyUp;
             await KeyboardService.Initialize();
             await Client.MacroModule.GetMacros()
                 .Tap(macros => Macros = macros)
@@ -164,7 +164,7 @@ namespace CncJs.Pendant.Web.Shared
 
         public void Dispose()
         {
-            KeyboardService.OnKeyUp -= OnKeyUp;
+            KeyboardService.KeyUp -= OnKeyUp;
         }
     }
 }

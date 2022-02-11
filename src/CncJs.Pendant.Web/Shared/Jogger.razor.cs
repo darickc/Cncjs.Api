@@ -9,7 +9,7 @@ namespace CncJs.Pendant.Web.Shared
 {
     public partial class Jogger : IDisposable
     {
-        [Inject] KeyboardService KeyboardService { get; set; }
+        [Inject] JavascriptService KeyboardService { get; set; }
         [Inject] public CncJsClient Client { get; set; }
         [Inject] public ILogger<Jogger> Logger { get; set; }
         
@@ -35,8 +35,8 @@ namespace CncJs.Pendant.Web.Shared
 
         protected override async Task OnInitializedAsync()
         {
-            KeyboardService.OnKeyDown += OnKeyDown;
-            KeyboardService.OnKeyUp += OnKeyUp;
+            KeyboardService.KeyDown += OnKeyDown;
+            KeyboardService.KeyUp += OnKeyUp;
             await KeyboardService.Initialize();
             IsTouchscreen = await KeyboardService.IsTouchScreen();
         }
@@ -150,8 +150,8 @@ namespace CncJs.Pendant.Web.Shared
         public void Dispose()
         {
             Timer?.Dispose();
-            KeyboardService.OnKeyDown -= OnKeyDown;
-            KeyboardService.OnKeyUp -= OnKeyUp;
+            KeyboardService.KeyDown -= OnKeyDown;
+            KeyboardService.KeyUp -= OnKeyUp;
         }
     }
 }

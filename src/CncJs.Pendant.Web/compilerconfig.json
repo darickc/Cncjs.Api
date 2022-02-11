@@ -66,5 +66,9 @@
   {
     "outputFile": "Shared/CommandsDialog.razor.css",
     "inputFile": "Shared/CommandsDialog.razor.scss"
+  },
+  {
+    "outputFile": "Shared/Settings.razor.css",
+    "inputFile": "Shared/Settings.razor.scss"
   }
 ]

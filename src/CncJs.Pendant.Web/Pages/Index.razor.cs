@@ -13,6 +13,7 @@ namespace CncJs.Pendant.Web.Pages
         public bool Loading { get; set; }
         public JoggingModel Jogging { get; set; } = new();
         public FeedrateModel Feedrate { get; set; }
+        public bool ShowSettings { get; set; }
 
         protected override void OnInitialized()
         {
